@@ -335,6 +335,45 @@
                         @endforeach
                     </div>
                 </div>
+
+                <!-- Legend -->
+                <div class="mt-6 pt-6 border-t-2 border-slate-100 px-4 pb-4">
+                    <div class="flex flex-wrap gap-8">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Empleados</p>
+                            <div class="flex flex-wrap gap-3">
+                                @php
+                                    $assignedEmployees = $allTasks->whereNotNull('assigned_to_id')->pluck('assignedTo')->unique('id');
+                                @endphp
+                                @forelse($assignedEmployees as $employee)
+                                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                                        <div class="w-2.5 h-2.5 rounded-full" style="background-color: {{ $employee->color ?? '#9ca3af' }}"></div>
+                                        <span class="text-xs font-bold text-slate-600">{{ $employee->name }}</span>
+                                    </div>
+                                @empty
+                                    <span class="text-xs text-slate-400 font-medium italic">No hay tareas asignadas</span>
+                                @endforelse
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Estado</p>
+                            <div class="flex flex-wrap gap-4">
+                                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="text-sm font-black text-slate-400 leading-none">○</span>
+                                    <span class="text-xs font-bold text-slate-600">Pendiente</span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="text-sm font-black text-blue-500 leading-none">▶</span>
+                                    <span class="text-xs font-bold text-slate-600">En Proceso</span>
+                                </div>
+                                <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
+                                    <span class="text-sm font-black text-emerald-500 leading-none">✓</span>
+                                    <span class="text-xs font-bold text-slate-600">Completada</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         @elseif ($activeTab === 'kanban')

@@ -15,6 +15,7 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id',
+        'team_id',
         'name',
         'email',
         'role',
@@ -31,6 +32,11 @@ class Employee extends Model
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
     public function user()

@@ -11,6 +11,9 @@ class Usuarios extends Component
     public $showModal = false;
     public $searchQuery = '';
 
+    public $editingUser = null;
+    public $editMode = false;
+
     // Form fields
     public $username;
     public $password;
@@ -22,6 +25,7 @@ class Usuarios extends Component
     public function openModal()
     {
         $this->resetForm();
+        $this->editMode = false;
         $this->showModal = true;
     }
 
@@ -33,27 +37,65 @@ class Usuarios extends Component
         $this->email = '';
         $this->department = 'Infraestructura y TI';
         $this->role = 'employee';
+        $this->editingUser = null;
+    }
+
+    public function edit(User $user)
+    {
+        $this->resetForm();
+        $this->editingUser = $user;
+        $this->username = $user->username;
+        $this->name = $user->name;
+        $this->email = $user->email;
+        $this->department = $user->department ?? 'Infraestructura y TI';
+        $this->role = $user->role;
+        $this->editMode = true;
+        $this->showModal = true;
+    }
+
+    public function delete(User $user)
+    {
+        if ($user->username === 'admin') {
+            return;
+        }
+        $user->delete();
     }
 
     public function save()
     {
-        $this->validate([
-            'username' => 'required|unique:users,username',
-            'password' => 'required|min:6',
+        $rules = [
+            'username' => 'required|unique:users,username' . ($this->editMode ? ',' . $this->editingUser->id : ''),
+            'password' => $this->editMode ? 'nullable|min:6' : 'required|min:6',
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'required|email|unique:users,email' . ($this->editMode ? ',' . $this->editingUser->id : ''),
             'department' => 'required',
             'role' => 'required',
-        ]);
+        ];
 
-        User::create([
-            'username' => $this->username,
-            'password' => $this->password, // Mutator hashes it to password_hash
-            'name' => $this->name,
-            'email' => $this->email,
-            'department' => $this->department,
-            'role' => $this->role,
-        ]);
+        $this->validate($rules);
+
+        if ($this->editMode) {
+            $data = [
+                'username' => $this->username,
+                'name' => $this->name,
+                'email' => $this->email,
+                'department' => $this->department,
+                'role' => $this->role,
+            ];
+            if ($this->password) {
+                $data['password'] = $this->password;
+            }
+            $this->editingUser->update($data);
+        } else {
+            User::create([
+                'username' => $this->username,
+                'password' => $this->password,
+                'name' => $this->name,
+                'email' => $this->email,
+                'department' => $this->department,
+                'role' => $this->role,
+            ]);
+        }
 
         $this->showModal = false;
         $this->resetForm();

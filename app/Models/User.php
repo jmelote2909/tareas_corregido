@@ -21,6 +21,9 @@ class User extends Authenticatable
         'password',
         'password_hash',
         'role',
+        'department',
+        'position',
+        'team_id',
         'avatar',
         'is_active',
     ];
@@ -48,6 +51,11 @@ class User extends Authenticatable
     public function setPasswordAttribute($value)
     {
         $this->attributes['password_hash'] = bcrypt($value);
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
     public function tasksRequested()

@@ -39,6 +39,7 @@ class NuevaSolicitud extends Component
             'category' => 'required',
             'priority' => 'required',
             'requesterDepartment' => 'required',
+            'dueDate' => 'nullable|date',
         ]);
 
         try {

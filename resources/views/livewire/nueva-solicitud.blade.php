@@ -97,6 +97,13 @@
                                 </select>
                                 @error('priority') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                             </div>
+
+                            {{-- Due Date --}}
+                            <div class="space-y-1">
+                                <label class="text-sm font-semibold text-slate-700">Fecha de Vencimiento</label>
+                                <input type="date" wire:model="dueDate" class="w-full bg-white border-2 border-slate-200 rounded-lg h-11 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                                @error('dueDate') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                            </div>
                         </div>
 
                         {{-- Attachments --}}

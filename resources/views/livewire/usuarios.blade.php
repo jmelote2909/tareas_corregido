@@ -79,14 +79,78 @@
             class="w-full pl-11 pr-4 py-3 bg-white border-0 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500/10 outline-none transition-all text-[#1a2344] font-medium placeholder:text-slate-300">
     </div>
 
-    {{-- Modal: Crear Nuevo Usuario --}}
+    <!-- Users Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        @foreach($users as $user)
+            @php
+                $initials = collect(explode(' ', $user->name))->map(fn($n) => $n[0])->take(2)->join('');
+                $roleColor = match($user->role) {
+                    'admin' => 'bg-blue-500',
+                    'employee' => 'bg-emerald-500',
+                    'requester' => 'bg-amber-500',
+                    default => 'bg-slate-500'
+                };
+                $roleName = match($user->role) {
+                    'admin' => 'Administrador',
+                    'employee' => 'Empleado',
+                    'requester' => 'Solicitante',
+                    default => $user->role
+                };
+            @endphp
+            <div class="bg-white rounded-[32px] p-6 shadow-sm border-2 border-transparent hover:border-indigo-100 hover:shadow-xl transition-all group overflow-hidden relative">
+                <div class="absolute top-0 right-0 p-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button wire:click="edit('{{ $user->id }}')" class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    </button>
+                    @if($user->username !== 'admin')
+                    <button wire:confirm="¿Estás seguro de eliminar este usuario?" wire:click="delete('{{ $user->id }}')" class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    </button>
+                    @endif
+                </div>
+
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-14 h-14 rounded-2xl {{ $roleColor }} text-white flex items-center justify-center text-xl font-black shadow-lg shadow-black/5">
+                        {{ strtoupper($initials) }}
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-[#1a2344] leading-tight">{{ $user->name }}</h3>
+                        <p class="text-sm text-slate-400 font-medium">@ {{ $user->username }}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-3 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        <span class="text-xs font-bold truncate">{{ $user->email }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span class="text-xs font-bold">{{ $user->department ?? 'General' }}</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                    <div class="flex items-center gap-2 px-3 py-1 rounded-full {{ str_replace('bg-', 'bg-opacity-10 text-', $roleColor) }} text-[10px] font-black uppercase tracking-wider">
+                        {{ $roleName }}
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                        {{ $user->created_at->diffForHumans() }}
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Modal: Crear/Editar Usuario --}}
     @if($showModal)
         <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md">
             <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
                 <div class="p-8 border-b border-slate-100 flex items-center justify-between">
                     <div>
-                        <h3 class="text-2xl font-black text-[#1a2344]">Crear Nuevo Usuario</h3>
-                        <p class="text-sm text-slate-400 font-medium">Completa la información del nuevo usuario</p>
+                        <h3 class="text-2xl font-black text-[#1a2344]">{{ $editMode ? 'Editar Usuario' : 'Crear Nuevo Usuario' }}</h3>
+                        <p class="text-sm text-slate-400 font-medium">{{ $editMode ? 'Actualiza la información del usuario' : 'Completa la información del nuevo usuario' }}</p>
                     </div>
                     <button wire:click="$set('showModal', false)" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -101,7 +165,7 @@
                             @error('username') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Contraseña</label>
+                            <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Contraseña {{ $editMode ? '(Opcional)' : '' }}</label>
                             <input type="password" wire:model="password" placeholder="••••••••" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-blue-500 focus:bg-white transition-all text-[#1a2344] font-bold">
                             @error('password') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                         </div>
@@ -142,7 +206,7 @@
                     </div>
 
                     <button wire:click="save" class="w-full h-14 bg-[#3b49ff] rounded-2xl text-white font-black text-lg shadow-xl shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all mt-4">
-                        Crear Usuario
+                        {{ $editMode ? 'Guardar Cambios' : 'Crear Usuario' }}
                     </button>
                 </div>
             </div>
