@@ -47,10 +47,16 @@ class Dashboard extends Component
         $tasksQuery = Task::with(['assignedTo', 'requestedBy', 'project'])
             ->where('is_archived', false);
 
-        if ($this->filterEmployee !== 'all') {
+        if (!$isAdmin) {
+            $employee = auth()->user()->employee;
+            $tasksQuery->where(function ($query) use ($employee) {
+                $query->where('requested_by_id', auth()->id());
+                if ($employee) {
+                    $query->orWhere('assigned_to_id', $employee->id);
+                }
+            });
+        } elseif ($this->filterEmployee !== 'all') {
             $tasksQuery->where('assigned_to_id', $this->filterEmployee);
-        } elseif (!$isAdmin) {
-            $tasksQuery->where('requested_by_id', auth()->id());
         }
 
         if ($this->searchQuery) {

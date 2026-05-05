@@ -7,6 +7,7 @@ use App\Models\TaskAttachment;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
+use App\Models\Category;
 
 class NuevaSolicitud extends Component
 {
@@ -14,10 +15,12 @@ class NuevaSolicitud extends Component
 
     public $title = '';
     public $description = '';
-    public $category = '';
+    public $category_id = '';
+    public $newCategoryName = '';
+    public $showNewCategoryInput = false;
     public $priority = '';
     public $dueDate = '';
-    public $requesterName = '';
+    public $selectedUserId = '';
     public $requesterDepartment = '';
     
     public $photos = [];
@@ -28,7 +31,45 @@ class NuevaSolicitud extends Component
 
     public function mount()
     {
-        $this->requesterName = auth()->user()->name;
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('dashboard');
+        }
+        $this->selectedUserId = auth()->id();
+        $this->updatedSelectedUserId($this->selectedUserId);
+    }
+
+    public function updatedSelectedUserId($value)
+    {
+        $user = \App\Models\User::find($value);
+        if ($user) {
+            $this->requesterDepartment = $user->department;
+        } else {
+            $this->requesterDepartment = '';
+        }
+    }
+
+    public function toggleNewCategoryInput()
+    {
+        $this->showNewCategoryInput = !$this->showNewCategoryInput;
+        if (!$this->showNewCategoryInput) {
+            $this->newCategoryName = '';
+        }
+    }
+
+    public function createCategory()
+    {
+        $this->validate([
+            'newCategoryName' => 'required|min:3|unique:categories,name'
+        ]);
+
+        $category = \App\Models\Category::create([
+            'name' => $this->newCategoryName,
+            'color' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+        ]);
+
+        $this->category_id = $category->id;
+        $this->newCategoryName = '';
+        $this->showNewCategoryInput = false;
     }
 
     public function save()
@@ -36,9 +77,9 @@ class NuevaSolicitud extends Component
         $this->validate([
             'title' => 'required|min:5',
             'description' => 'required|min:10',
-            'category' => 'required',
+            'category_id' => 'required',
             'priority' => 'required',
-            'requesterDepartment' => 'required',
+            'selectedUserId' => 'required',
             'dueDate' => 'nullable|date',
         ]);
 
@@ -49,8 +90,8 @@ class NuevaSolicitud extends Component
                 'status' => 'pendiente',
                 'priority' => $this->priority,
                 'due_date' => $this->dueDate ?: null,
-                'requested_by_id' => auth()->id(),
-                // 'category' => $this->category, // Add category to tasks table if needed
+                'requested_by_id' => $this->selectedUserId,
+                'category_id' => $this->category_id,
             ]);
 
             // Handle photos
@@ -64,6 +105,17 @@ class NuevaSolicitud extends Component
                 ]);
             }
 
+            // Handle audio
+            if ($this->audio) {
+                $path = $this->audio->store('attachments', 'public');
+                TaskAttachment::create([
+                    'task_id' => $task->id,
+                    'type' => 'audio',
+                    'url' => '/storage/' . $path,
+                    'name' => $this->audio->getClientOriginalName(),
+                ]);
+            }
+
             $this->success = true;
             
             return redirect()->to('/dashboard');
@@ -74,6 +126,9 @@ class NuevaSolicitud extends Component
 
     public function render()
     {
-        return view('livewire.nueva-solicitud')->layout('layouts.app');
+        return view('livewire.nueva-solicitud', [
+            'users' => \App\Models\User::orderBy('name')->get(),
+            'categories' => Category::orderBy('name')->get()
+        ])->layout('layouts.app');
     }
 }

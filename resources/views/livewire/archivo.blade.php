@@ -43,17 +43,19 @@
             </div>
 
             <!-- Employee -->
-            <div class="relative">
-                <select wire:model.live="filterEmployee" class="w-full pl-4 pr-10 py-3 bg-white border border-amber-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-400 transition-all text-[#1a2344] font-medium appearance-none cursor-pointer">
-                    <option value="all">Todos los empleados</option>
-                    @foreach($employees as $employee)
-                        <option value="{{ $employee->id }}">{{ $employee->name }}</option>
-                    @endforeach
-                </select>
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-amber-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            @if(auth()->user()->role === 'admin')
+                <div class="relative">
+                    <select wire:model.live="filterEmployee" class="w-full pl-4 pr-10 py-3 bg-white border border-amber-100 rounded-2xl outline-none focus:ring-4 focus:ring-amber-500/5 focus:border-amber-400 transition-all text-[#1a2344] font-medium appearance-none cursor-pointer">
+                        <option value="all">Todos los empleados</option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-amber-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <!-- Category -->
             <div class="relative">

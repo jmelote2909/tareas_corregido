@@ -18,6 +18,7 @@ class Equipo extends Component
     public $selectedTeamId = null;
     public $showTeamModal = false;
     public $showMemberModal = false;
+    public $userSearch = '';
     
     // Team fields
     public $teamId;
@@ -111,6 +112,7 @@ class Equipo extends Component
     public function openMemberModal($id = null)
     {
         $this->resetMemberForm();
+        $this->userSearch = '';
         if ($id) {
             $this->editingEmployeeId = $id;
             $employee = Employee::findOrFail($id);
@@ -188,7 +190,7 @@ class Equipo extends Component
             'team_id' => $this->selectedTeamId,
             'name' => $this->name,
             'email' => $this->email,
-            'role' => $this->role === 'admin' ? 'Administrador' : 'Empleado',
+            'role' => $this->role === 'admin' ? 'Administrador' : ($this->role === 'requester' ? 'Solicitante' : 'Empleado'),
             'color' => $this->color,
             'is_active' => $this->isActive,
         ];
@@ -207,6 +209,26 @@ class Equipo extends Component
         $this->resetMemberForm();
     }
 
+    public function addToTeam($userId)
+    {
+        $user = User::findOrFail($userId);
+        $user->update(['team_id' => $this->selectedTeamId]);
+
+        Employee::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'team_id' => $this->selectedTeamId,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role === 'admin' ? 'Administrador' : ($user->role === 'requester' ? 'Solicitante' : 'Empleado'),
+                'is_active' => $user->is_active ?? true,
+                'color' => '#6366f1',
+            ]
+        );
+
+        $this->showMemberModal = false;
+    }
+
     public function deleteMember($id)
     {
         $employee = Employee::findOrFail($id);
@@ -221,16 +243,36 @@ class Equipo extends Component
         $teams = Team::all();
         $employees = collect();
         $selectedTeam = null;
+        $availableUsers = collect();
+
+        if (auth()->user()->role !== 'admin') {
+            $this->view = 'members';
+            $this->selectedTeamId = auth()->user()->team_id;
+        }
 
         if ($this->view === 'members' && $this->selectedTeamId) {
             $employees = Employee::where('team_id', $this->selectedTeamId)->get();
             $selectedTeam = Team::find($this->selectedTeamId);
+            
+            if ($this->showMemberModal && !$this->editingEmployeeId) {
+                $availableUsers = User::where(function($q) {
+                    $q->where('name', 'like', '%' . $this->userSearch . '%')
+                      ->orWhere('email', 'like', '%' . $this->userSearch . '%');
+                })
+                ->where(function($q) {
+                    $q->where('team_id', '!=', $this->selectedTeamId)
+                      ->orWhereNull('team_id');
+                })
+                ->limit(10)
+                ->get();
+            }
         }
 
         return view('livewire.equipo', [
             'teams' => $teams,
             'employees' => $employees,
             'selectedTeam' => $selectedTeam,
+            'availableUsers' => $availableUsers,
             'tasks' => Task::all(),
         ])->layout('layouts.app');
     }

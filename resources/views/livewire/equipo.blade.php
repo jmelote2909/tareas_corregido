@@ -238,70 +238,108 @@
                     </button>
                 </div>
                 <div class="p-10 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    {{-- Avatar --}}
-                    <div class="flex flex-col items-center mb-8">
-                        <label class="cursor-pointer group relative">
-                            <div class="h-32 w-32 rounded-[40px] bg-slate-50 flex items-center justify-center text-slate-300 border-4 border-white shadow-xl overflow-hidden group-hover:scale-105 transition-all" style="background-color: {{ $color }}">
-                                @if($avatar)
-                                    <img src="{{ $avatar->temporaryUrl() }}" class="w-full h-full object-cover">
-                                @else
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                                @endif
+                    @if(!$editingEmployeeId)
+                        {{-- Add Member Mode: Only search and selection --}}
+                        <div>
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 block">Buscar Usuario para Añadir</label>
+                            <div class="relative">
+                                <input type="text" wire:model.live="userSearch" placeholder="Escribe un nombre o correo..." class="w-full h-14 bg-slate-50 border-2 border-slate-50 rounded-2xl px-12 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                                <svg class="absolute left-4 top-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                             </div>
-                            <input type="file" wire:model="avatar" class="hidden">
-                        </label>
-                        <p class="text-xs font-black text-slate-400 uppercase mt-4 tracking-widest">Subir Foto</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6">
-                        <div class="col-span-2">
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Nombre Completo</label>
-                            <input type="text" wire:model="name" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
-                            @error('name') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                         </div>
-                        
+
+                        <div class="space-y-3">
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1 block">Resultados de Búsqueda</label>
+                            @forelse($availableUsers as $user)
+                                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border-2 border-transparent hover:border-indigo-100 transition-all group/item">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 leading-none">{{ $user->name }}</p>
+                                            <p class="text-xs text-slate-400 mt-1 font-medium">{{ $user->email }}</p>
+                                        </div>
+                                    </div>
+                                    <button wire:click="addToTeam('{{ $user->id }}')" class="px-6 py-2.5 bg-white border-2 border-slate-100 hover:bg-indigo-600 hover:border-indigo-600 hover:text-white transition-all rounded-xl text-xs font-black text-slate-600 shadow-sm">
+                                        Añadir al Equipo
+                                    </button>
+                                </div>
+                            @empty
+                                <div class="text-center py-12 bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-100">
+                                    <svg class="mx-auto text-slate-200 mb-4" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 16-4-4-4 4"/><path d="m8 8 4 4 4-4"/></svg>
+                                    <p class="text-slate-400 font-bold">No se encontraron usuarios disponibles</p>
+                                    <p class="text-[10px] text-slate-300 uppercase tracking-widest mt-1">Intenta con otro nombre</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    @else
+                        {{-- Edit Member Mode: Only form --}}
+                        {{-- Avatar --}}
+                        <div class="flex flex-col items-center mb-8">
+                            <label class="cursor-pointer group relative">
+                                <div class="h-32 w-32 rounded-[40px] bg-slate-50 flex items-center justify-center text-slate-300 border-4 border-white shadow-xl overflow-hidden group-hover:scale-105 transition-all" style="background-color: {{ $color }}">
+                                    @if($avatar)
+                                        <img src="{{ $avatar->temporaryUrl() }}" class="w-full h-full object-cover">
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                                    @endif
+                                </div>
+                                <input type="file" wire:model="avatar" class="hidden">
+                            </label>
+                            <p class="text-xs font-black text-slate-400 uppercase mt-4 tracking-widest">Subir Foto</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="col-span-2">
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Nombre Completo</label>
+                                <input type="text" wire:model="name" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                                @error('name') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Usuario</label>
+                                <input type="text" wire:model="username" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                            </div>
+                            <div>
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Contraseña</label>
+                                <input type="password" wire:model="password" placeholder="••••••••" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                                @error('password') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-span-2">
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Correo Electrónico</label>
+                                <input type="email" wire:model="email" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                                @error('email') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Cargo</label>
+                                <input type="text" wire:model="position" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
+                            </div>
+                            <div>
+                                <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Rol Sistema</label>
+                                <select wire:model="role" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold appearance-none">
+                                    <option value="employee">Empleado</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="requester">Solicitante</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Usuario</label>
-                            <input type="text" wire:model="username" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
-                        </div>
-                        <div>
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Contraseña</label>
-                            <input type="password" wire:model="password" placeholder="••••••••" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
-                            @error('password') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="col-span-2">
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Correo Electrónico</label>
-                            <input type="email" wire:model="email" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
-                            @error('email') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 block">Color Personal</label>
+                            <div class="flex gap-2 flex-wrap">
+                                @foreach(['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'] as $c)
+                                    <button wire:click="$set('color', '{{ $c }}')" class="h-8 w-8 rounded-xl border-4 {{ $color === $c ? 'border-slate-800 scale-110' : 'border-transparent' }} transition-all" style="background-color: {{ $c }}"></button>
+                                @endforeach
+                            </div>
                         </div>
 
-                        <div>
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Cargo</label>
-                            <input type="text" wire:model="position" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold">
-                        </div>
-                        <div>
-                            <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2 block">Rol Sistema</label>
-                            <select wire:model="role" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-indigo-500 focus:bg-white transition-all text-slate-800 font-bold appearance-none">
-                                <option value="employee">Empleado</option>
-                                <option value="admin">Administrador</option>
-                                <option value="requester">Solicitante</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 block">Color Personal</label>
-                        <div class="flex gap-2 flex-wrap">
-                            @foreach(['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'] as $c)
-                                <button wire:click="$set('color', '{{ $c }}')" class="h-8 w-8 rounded-xl border-4 {{ $color === $c ? 'border-slate-800 scale-110' : 'border-transparent' }} transition-all" style="background-color: {{ $c }}"></button>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <button wire:click="saveMember" class="w-full h-16 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl text-white font-black text-lg shadow-xl shadow-indigo-100 mt-6 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                        {{ $editingEmployeeId ? 'Guardar Cambios' : 'Añadir al Equipo' }}
-                    </button>
+                        <button wire:click="saveMember" class="w-full h-16 bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl text-white font-black text-lg shadow-xl shadow-indigo-100 mt-6 hover:scale-[1.02] active:scale-[0.98] transition-all">
+                            Guardar Cambios
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

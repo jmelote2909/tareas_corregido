@@ -23,6 +23,7 @@ class Task extends Model
         'assigned_to_id',
         'requested_by_id',
         'project_id',
+        'category_id',
         'is_archived',
         'completed_at',
     ];
@@ -50,6 +51,11 @@ class Task extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 
     public function comments()

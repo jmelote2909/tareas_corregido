@@ -42,18 +42,18 @@
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
-                                    <label class="text-sm font-semibold text-slate-700">Nombre *</label>
-                                    <input type="text" wire:model="requesterName" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    <label class="text-sm font-semibold text-slate-700">Seleccionar Usuario *</label>
+                                    <select wire:model.live="selectedUserId" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                        <option value="">Seleccione un usuario...</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('selectedUserId') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="space-y-1">
-                                    <label class="text-sm font-semibold text-slate-700">Departamento *</label>
-                                    <select wire:model="requesterDepartment" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                        <option value="">Seleccione...</option>
-                                        <option value="produccion">Producción</option>
-                                        <option value="calidad">Calidad</option>
-                                        <option value="logistica">Logística</option>
-                                        <option value="administracion">Administración</option>
-                                    </select>
+                                    <label class="text-sm font-semibold text-slate-700">Departamento</label>
+                                    <input type="text" wire:model="requesterDepartment" readonly class="w-full bg-slate-50 border-2 border-blue-100 rounded-lg h-10 px-3 text-slate-500 cursor-not-allowed">
                                 </div>
                             </div>
                         </div>
@@ -76,13 +76,31 @@
                             {{-- Category --}}
                             <div class="space-y-1">
                                 <label class="text-sm font-semibold text-slate-700">Categoría *</label>
-                                <select wire:model="category" class="w-full bg-white border-2 border-slate-200 rounded-lg h-11 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
-                                    <option value="">Seleccione...</option>
-                                    <option value="infraestructura">Infraestructura</option>
-                                    <option value="ti">Tecnología de Información</option>
-                                    <option value="mantenimiento">Mantenimiento</option>
-                                </select>
-                                @error('category') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                <div class="flex gap-2">
+                                    <div class="relative flex-1">
+                                        <select wire:model="category_id" class="w-full bg-white border-2 border-slate-200 rounded-lg h-11 px-4 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                                            <option value="">Seleccione...</option>
+                                            @foreach($categories as $cat)
+                                                <option value="{{ $cat->id }}" wire:key="cat-{{ $cat->id }}">{{ $cat->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button type="button" wire:click="toggleNewCategoryInput" class="h-11 w-11 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg border-2 border-indigo-100 hover:bg-indigo-100 transition-all">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                    </button>
+                                </div>
+                                @error('category_id') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                
+                                @if($showNewCategoryInput)
+                                    <div class="mt-2 p-4 bg-indigo-50 rounded-xl border-2 border-indigo-100 animate-in fade-in slide-in-from-top-2">
+                                        <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Nueva Categoría</label>
+                                        <div class="flex gap-2">
+                                            <input type="text" wire:model="newCategoryName" placeholder="Nombre..." class="flex-1 h-10 bg-white border-2 border-indigo-100 rounded-lg px-3 outline-none focus:border-indigo-500 text-sm font-bold">
+                                            <button type="button" wire:click="createCategory" class="px-4 bg-indigo-600 text-white rounded-lg font-bold text-sm">Crear</button>
+                                        </div>
+                                        @error('newCategoryName') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Priority --}}
@@ -110,18 +128,34 @@
                         <div class="space-y-3">
                             <label class="text-sm font-semibold text-slate-700">Adjuntar Archivos</label>
                             <div class="flex gap-3">
+                                {{-- Photos --}}
                                 <label class="flex-1 cursor-pointer">
-                                    <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                                    <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                                         Adjuntar Foto
                                     </div>
-                                    <input type="file" wire:model="photos" multiple class="hidden">
+                                    <input type="file" wire:model="photos" multiple class="hidden" accept="image/*">
                                 </label>
-                                <div class="flex-1 flex items-center justify-center gap-2 border-2 border-blue-100 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl h-12 text-blue-700 font-semibold cursor-pointer">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                                    Grabar Audio
-                                </div>
+                                
+                                {{-- Audio File --}}
+                                <label class="flex-1 cursor-pointer">
+                                    <div class="flex items-center justify-center gap-2 border-2 border-blue-100 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl h-12 text-blue-700 font-semibold text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                        Adjuntar Audio
+                                    </div>
+                                    <input type="file" wire:model="audio" class="hidden" accept="audio/*">
+                                </label>
                             </div>
+
+                            @if($audio)
+                                <div class="p-3 bg-blue-50 rounded-lg flex items-center gap-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                                    <span class="text-sm font-bold text-blue-800 italic">Audio adjunto listo</span>
+                                    <button type="button" wire:click="$set('audio', null)" class="ml-auto text-blue-400 hover:text-blue-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                    </button>
+                                </div>
+                            @endif
                             
                             @if($photos)
                                 <div class="grid grid-cols-4 gap-2 mt-2">

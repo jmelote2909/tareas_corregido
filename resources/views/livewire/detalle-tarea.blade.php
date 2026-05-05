@@ -113,6 +113,51 @@
                     </div>
                 </div>
             </div>
+            {{-- Attachments --}}
+            @if($task->attachments->count() > 0)
+                <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        Archivos Adjuntos
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        {{-- Images Grid --}}
+                        @php $images = $task->attachments->where('type', 'image'); @endphp
+                        @if($images->count() > 0)
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                @foreach($images as $img)
+                                    <a href="{{ $img->url }}" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden border-2 border-slate-50 hover:border-indigo-200 transition-all shadow-sm">
+                                        <img src="{{ $img->url }}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        {{-- Audio Player --}}
+                        @php $audios = $task->attachments->where('type', 'audio'); @endphp
+                        @if($audios->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($audios as $audio)
+                                    <div class="bg-indigo-50 rounded-2xl p-4 border-2 border-indigo-100">
+                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                            Nota de voz adjunta
+                                        </p>
+                                        <audio controls class="w-full h-10">
+                                            <source src="{{ $audio->url }}">
+                                            Tu navegador no soporta el elemento de audio.
+                                        </audio>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         {{-- Sidebar --}}

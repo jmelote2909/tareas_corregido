@@ -23,12 +23,12 @@
         </div>
 
         <div class="flex items-center gap-4">
-            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-all">
+            <button wire:click="previous" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <span class="text-[#1a2344] font-black tracking-tight">20 Abr - 26 Abr 2026</span>
-            <button class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-9-6"/></svg>
+            <span class="text-[#1a2344] font-black tracking-tight uppercase">{{ $rangeText }}</span>
+            <button wire:click="next" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
             </button>
         </div>
     </div>
@@ -77,40 +77,75 @@
         </div>
     </div>
 
-    <!-- Charts Area -->
-    <div class="grid grid-cols-2 gap-8 mb-8">
-        <!-- Rendimiento -->
-        <div class="bg-white rounded-[40px] shadow-sm p-8 border border-slate-100">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    @if(auth()->user()->role === 'admin')
+        <!-- Charts Area -->
+        <div class="grid grid-cols-2 gap-8 mb-8">
+            <!-- Rendimiento -->
+            <div class="bg-white rounded-[40px] shadow-sm p-8 border border-slate-100">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-indigo-900 leading-tight">Rendimiento por Empleado</h3>
+                        <p class="text-xs text-slate-400 font-medium">Tareas completadas por cada miembro</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-lg font-black text-indigo-900 leading-tight">Rendimiento por Empleado</h3>
-                    <p class="text-xs text-slate-400 font-medium">Tareas completadas por cada miembro</p>
+                <div class="space-y-4">
+                    @forelse($performance as $emp)
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+                                    {{ substr($emp['name'], 0, 1) }}
+                                </div>
+                                <span class="text-sm font-bold text-slate-700">{{ $emp['name'] }}</span>
+                            </div>
+                            <div class="flex items-center gap-4 flex-1 max-w-[200px]">
+                                <div class="h-2 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-indigo-500 rounded-full" style="width: {{ ($emp['count'] / max($performance->pluck('count')->max(), 1)) * 100 }}%"></div>
+                                </div>
+                                <span class="text-sm font-black text-indigo-900">{{ $emp['count'] }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="h-64 flex items-center justify-center border-2 border-dashed border-slate-50 rounded-3xl">
+                            <p class="text-slate-300 font-bold">No hay datos para este periodo</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
-            <div class="h-64 flex items-center justify-center border-2 border-dashed border-slate-50 rounded-3xl">
-                <p class="text-slate-300 font-bold">No hay datos para este periodo</p>
-            </div>
-        </div>
 
-        <!-- Por Departamento -->
-        <div class="bg-white rounded-[40px] shadow-sm p-8 border border-slate-100">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16v-4"/><path d="M11 16V9"/><path d="M15 16V5"/><path d="M19 16V12"/></svg>
+            <!-- Por Departamento -->
+            <div class="bg-white rounded-[40px] shadow-sm p-8 border border-slate-100">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16v-4"/><path d="M11 16V9"/><path d="M15 16V5"/><path d="M19 16V12"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-purple-900 leading-tight">Por Departamento Solicitante</h3>
+                        <p class="text-xs text-slate-400 font-medium">Tareas resueltas para cada departamento</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-lg font-black text-purple-900 leading-tight">Por Departamento Solicitante</h3>
-                    <p class="text-xs text-slate-400 font-medium">Tareas resueltas para cada departamento</p>
+                <div class="space-y-4">
+                    @forelse($departments as $dept => $count)
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-bold text-slate-700">{{ $dept }}</span>
+                            <div class="flex items-center gap-4 flex-1 max-w-[200px]">
+                                <div class="h-2 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-purple-500 rounded-full" style="width: {{ ($count / max($departments->max(), 1)) * 100 }}%"></div>
+                                </div>
+                                <span class="text-sm font-black text-purple-900">{{ $count }}</span>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="h-64 flex items-center justify-center border-2 border-dashed border-slate-50 rounded-3xl">
+                            <p class="text-slate-300 font-bold">No hay datos para este periodo</p>
+                        </div>
+                    @endforelse
                 </div>
-            </div>
-            <div class="h-64 flex items-center justify-center border-2 border-dashed border-slate-50 rounded-3xl">
-                <p class="text-slate-300 font-bold">No hay datos para este periodo</p>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Bottom Distribution Grid -->
     <div class="grid grid-cols-2 gap-8">
@@ -122,19 +157,19 @@
             <div class="grid grid-cols-2 gap-4">
                 <div class="p-4 rounded-[24px] bg-red-50 border border-red-100/50">
                     <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Urgente</p>
-                    <p class="text-2xl font-black text-red-600">0</p>
+                    <p class="text-2xl font-black text-red-600">{{ $priorities['urgente'] }}</p>
                 </div>
                 <div class="p-4 rounded-[24px] bg-orange-50 border border-orange-100/50">
                     <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1">Alta</p>
-                    <p class="text-2xl font-black text-orange-600">0</p>
+                    <p class="text-2xl font-black text-orange-600">{{ $priorities['alta'] }}</p>
                 </div>
                 <div class="p-4 rounded-[24px] bg-amber-50 border border-amber-100/50">
                     <p class="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-1">Media</p>
-                    <p class="text-2xl font-black text-amber-600">0</p>
+                    <p class="text-2xl font-black text-amber-600">{{ $priorities['media'] }}</p>
                 </div>
                 <div class="p-4 rounded-[24px] bg-blue-50 border border-blue-100/50">
                     <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Baja</p>
-                    <p class="text-2xl font-black text-blue-600">0</p>
+                    <p class="text-2xl font-black text-blue-600">{{ $priorities['baja'] }}</p>
                 </div>
             </div>
         </div>
@@ -145,22 +180,26 @@
             <p class="text-xs text-slate-400 font-medium mb-8">Tipo de trabajo realizado</p>
             
             <div class="grid grid-cols-2 gap-4">
-                <div class="p-4 rounded-[24px] bg-indigo-50 border border-indigo-100/50">
-                    <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Infraestructura</p>
-                    <p class="text-2xl font-black text-indigo-600">0</p>
-                </div>
-                <div class="p-4 rounded-[24px] bg-teal-50 border border-teal-100/50">
-                    <p class="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-1">TI</p>
-                    <p class="text-2xl font-black text-teal-600">0</p>
-                </div>
-                <div class="p-4 rounded-[24px] bg-orange-50 border border-orange-100/50">
-                    <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1">Mantenimiento</p>
-                    <p class="text-2xl font-black text-orange-600">0</p>
-                </div>
-                <div class="p-4 rounded-[24px] bg-slate-50 border border-slate-100/50">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Otro</p>
-                    <p class="text-2xl font-black text-slate-600">0</p>
-                </div>
+                @php
+                    $colors = [
+                        ['bg' => 'bg-indigo-50', 'border' => 'border-indigo-100/50', 'text' => 'text-indigo-600', 'label' => 'text-indigo-400'],
+                        ['bg' => 'bg-teal-50', 'border' => 'border-teal-100/50', 'text' => 'text-teal-600', 'label' => 'text-teal-400'],
+                        ['bg' => 'bg-orange-50', 'border' => 'border-orange-100/50', 'text' => 'text-orange-600', 'label' => 'text-orange-400'],
+                        ['bg' => 'bg-purple-50', 'border' => 'border-purple-100/50', 'text' => 'text-purple-600', 'label' => 'text-purple-400'],
+                        ['bg' => 'bg-rose-50', 'border' => 'border-rose-100/50', 'text' => 'text-rose-600', 'label' => 'text-rose-400'],
+                    ];
+                    $i = 0;
+                @endphp
+                @foreach($categories as $name => $count)
+                    @php 
+                        $c = $colors[$i % count($colors)]; 
+                        $i++;
+                    @endphp
+                    <div class="p-4 rounded-[24px] {{ $c['bg'] }} border {{ $c['border'] }}">
+                        <p class="text-[10px] font-black {{ $c['label'] }} uppercase tracking-widest mb-1">{{ $name }}</p>
+                        <p class="text-2xl font-black {{ $c['text'] }}">{{ $count }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>

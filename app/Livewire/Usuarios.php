@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Models\Team;
+use App\Models\Employee;
 use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
 
@@ -19,8 +21,20 @@ class Usuarios extends Component
     public $password;
     public $name;
     public $email;
-    public $department = 'Infraestructura y TI';
+    public $department = '';
+    public $team_id = null;
     public $role = 'employee';
+
+    // New team logic
+    public $newTeamName = '';
+    public $showNewTeamInput = false;
+
+    public function mount()
+    {
+        if (auth()->user()->role !== 'admin') {
+            return redirect()->route('dashboard');
+        }
+    }
 
     public function openModal()
     {
@@ -35,9 +49,12 @@ class Usuarios extends Component
         $this->password = '';
         $this->name = '';
         $this->email = '';
-        $this->department = 'Infraestructura y TI';
+        $this->department = '';
+        $this->team_id = null;
         $this->role = 'employee';
         $this->editingUser = null;
+        $this->newTeamName = '';
+        $this->showNewTeamInput = false;
     }
 
     public function edit(User $user)
@@ -47,10 +64,36 @@ class Usuarios extends Component
         $this->username = $user->username;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->department = $user->department ?? 'Infraestructura y TI';
+        $this->department = $user->department;
+        $this->team_id = $user->team_id;
         $this->role = $user->role;
         $this->editMode = true;
         $this->showModal = true;
+    }
+
+    public function toggleNewTeamInput()
+    {
+        $this->showNewTeamInput = !$this->showNewTeamInput;
+        if (!$this->showNewTeamInput) {
+            $this->newTeamName = '';
+        }
+    }
+
+    public function createTeam()
+    {
+        $this->validate([
+            'newTeamName' => 'required|min:3|unique:teams,name'
+        ]);
+
+        $team = Team::create([
+            'name' => $this->newTeamName,
+            'color' => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT),
+        ]);
+
+        $this->team_id = $team->id;
+        $this->department = $team->name;
+        $this->newTeamName = '';
+        $this->showNewTeamInput = false;
     }
 
     public function delete(User $user)
@@ -58,6 +101,10 @@ class Usuarios extends Component
         if ($user->username === 'admin') {
             return;
         }
+        
+        // Delete associated employee if exists
+        Employee::where('user_id', $user->id)->delete();
+        
         $user->delete();
     }
 
@@ -68,34 +115,52 @@ class Usuarios extends Component
             'password' => $this->editMode ? 'nullable|min:6' : 'required|min:6',
             'name' => 'required',
             'email' => 'required|email|unique:users,email' . ($this->editMode ? ',' . $this->editingUser->id : ''),
-            'department' => 'required',
+            'team_id' => 'required',
             'role' => 'required',
         ];
 
         $this->validate($rules);
 
         if ($this->editMode) {
+            $team = Team::find($this->team_id);
             $data = [
                 'username' => $this->username,
                 'name' => $this->name,
                 'email' => $this->email,
-                'department' => $this->department,
+                'department' => $team ? $team->name : $this->department,
+                'team_id' => $this->team_id,
                 'role' => $this->role,
             ];
             if ($this->password) {
                 $data['password'] = $this->password;
             }
             $this->editingUser->update($data);
+            $user = $this->editingUser;
         } else {
-            User::create([
+            $team = Team::find($this->team_id);
+            $user = User::create([
                 'username' => $this->username,
                 'password' => $this->password,
                 'name' => $this->name,
                 'email' => $this->email,
-                'department' => $this->department,
+                'department' => $team ? $team->name : $this->department,
+                'team_id' => $this->team_id,
                 'role' => $this->role,
             ]);
         }
+
+        // Sync with Employee
+        Employee::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'team_id' => $user->team_id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role === 'admin' ? 'Administrador' : ($user->role === 'requester' ? 'Solicitante' : 'Empleado'),
+                'is_active' => $user->is_active ?? true,
+                'color' => '#6366f1', // Default color
+            ]
+        );
 
         $this->showModal = false;
         $this->resetForm();
@@ -125,7 +190,8 @@ class Usuarios extends Component
 
         return view('livewire.usuarios', [
             'users' => $users,
-            'stats' => $stats
+            'stats' => $stats,
+            'teams' => Team::all()
         ])->layout('layouts.app');
     }
 }

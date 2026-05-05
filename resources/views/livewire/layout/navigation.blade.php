@@ -36,10 +36,14 @@ new class extends Component
     <!-- Center: Main Nav -->
     <div class="flex items-center gap-1">
         <x-nav-button :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">Dashboard</x-nav-button>
-        <x-nav-button :href="route('nueva-solicitud')" :active="request()->routeIs('nueva-solicitud')" icon="plus">Nueva</x-nav-button>
+        @if(auth()->user()->role === 'admin')
+            <x-nav-button :href="route('nueva-solicitud')" :active="request()->routeIs('nueva-solicitud')" icon="plus">Nueva</x-nav-button>
+        @endif
         <x-nav-button :href="route('mis-tareas')" :active="request()->routeIs('mis-tareas')" icon="tasks">Mis Tareas</x-nav-button>
         <x-nav-button :href="route('equipo')" :active="request()->routeIs('equipo')" icon="users">Equipo</x-nav-button>
-        <x-nav-button :href="route('usuarios')" :active="request()->routeIs('usuarios')" icon="user-plus">Usuarios</x-nav-button>
+        @if(auth()->user()->role === 'admin')
+            <x-nav-button :href="route('usuarios')" :active="request()->routeIs('usuarios')" icon="user-plus">Usuarios</x-nav-button>
+        @endif
         <x-nav-button :href="route('proyectos')" :active="request()->routeIs('proyectos')" icon="folder">Proyectos</x-nav-button>
         <x-nav-button :href="route('informes')" :active="request()->routeIs('informes')" icon="chart">Informes</x-nav-button>
         <x-nav-button :href="route('archivo')" :active="request()->routeIs('archivo')" icon="archive">Archivo</x-nav-button>

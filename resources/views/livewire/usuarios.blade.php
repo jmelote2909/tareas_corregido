@@ -184,8 +184,41 @@
                     </div>
 
                     <div>
-                        <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Departamento</label>
-                        <input type="text" wire:model="department" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-blue-500 focus:bg-white transition-all text-[#1a2344] font-bold">
+                        <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Departamento / Equipo</label>
+                        <div class="flex gap-2">
+                            <div class="relative flex-1 group">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-indigo-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                </div>
+                                <select wire:model="team_id" class="w-full h-12 pl-12 pr-4 bg-slate-50 border-2 border-slate-50 rounded-2xl outline-none focus:border-blue-500 focus:bg-white transition-all text-[#1a2344] font-bold appearance-none cursor-pointer">
+                                    <option value="">Seleccionar departamento...</option>
+                                    @foreach($teams as $team)
+                                        <option value="{{ $team->id }}">{{ $team->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-slate-400">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="toggleNewTeamInput" class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-all shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                            </button>
+                        </div>
+                        @error('team_id') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+
+                        @if($showNewTeamInput)
+                            <div class="mt-4 p-4 bg-indigo-50/50 rounded-3xl border-2 border-indigo-100/50 animate-in slide-in-from-top-2 duration-300">
+                                <label class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-2 block">Nuevo Departamento</label>
+                                <div class="flex gap-2">
+                                    <input type="text" wire:model="newTeamName" placeholder="Nombre del departamento..." 
+                                        class="flex-1 h-10 bg-white border-2 border-indigo-100 rounded-xl px-4 outline-none focus:border-indigo-500 transition-all text-[#1a2344] font-bold text-sm">
+                                    <button type="button" wire:click="createTeam" class="px-4 h-10 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all">
+                                        Añadir
+                                    </button>
+                                </div>
+                                @error('newTeamName') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+                        @endif
                     </div>
 
                     <div>

@@ -15,12 +15,13 @@ class MisTareas extends Component
 
     public function mount()
     {
-        // Try to find employee linked to user
-        $employee = Employee::where('user_id', auth()->id())->first();
+        // Use relationship
+        $employee = auth()->user()->employee;
         if ($employee) {
             $this->selectedEmployeeId = $employee->id;
+            $this->showSelector = auth()->user()->role === 'admin';
         } else {
-            $this->showSelector = true;
+            $this->showSelector = auth()->user()->role === 'admin';
         }
     }
 

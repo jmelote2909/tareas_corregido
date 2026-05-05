@@ -49,6 +49,12 @@ class Employee extends Model
         return $this->hasMany(Task::class, 'assigned_to_id');
     }
 
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
+
     protected function casts(): array
     {
         return [

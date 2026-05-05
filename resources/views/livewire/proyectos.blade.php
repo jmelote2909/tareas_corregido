@@ -7,10 +7,12 @@
                 <p class="text-slate-400 font-medium mt-1">Controla y da seguimiento a grandes proyectos</p>
             </div>
 
-            <button wire:click="openModal" class="flex items-center gap-2 px-6 py-3 bg-[#8b5cf6] rounded-2xl text-white font-bold shadow-lg shadow-purple-500/20 hover:scale-105 transition-all active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                Nuevo Proyecto
-            </button>
+            @if(auth()->user()->role === 'admin')
+                <button wire:click="openModal" class="flex items-center gap-2 px-6 py-3 bg-[#8b5cf6] rounded-2xl text-white font-bold shadow-lg shadow-purple-500/20 hover:scale-105 transition-all active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Nuevo Proyecto
+                </button>
+            @endif
         </div>
 
         <!-- Stats Grid -->
@@ -53,11 +55,55 @@
         @else
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($projects as $project)
-                    <div class="bg-white p-6 rounded-[32px] shadow-sm">
-                        <h4 class="font-black text-[#1a2344] mb-2">{{ $project->name }}</h4>
-                        <div class="flex items-center gap-2">
-                            <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-600 uppercase">{{ $project->status }}</span>
-                            <span class="px-3 py-1 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-600 uppercase">{{ $project->priority }}</span>
+                    <div class="bg-white p-8 rounded-[32px] shadow-sm relative group">
+                        @if(auth()->user()->role === 'admin')
+                            <div class="absolute top-6 right-6 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                <button wire:click="openModal('{{ $project->id }}')" class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center hover:bg-indigo-100 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                </button>
+                                <button wire:confirm="¿Estás seguro de eliminar este proyecto?" wire:click="delete('{{ $project->id }}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-100 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                </button>
+                            </div>
+                        @endif
+
+                        <h4 class="font-black text-[#1a2344] text-lg mb-2">{{ $project->name }}</h4>
+                        <p class="text-xs text-slate-400 font-medium mb-6 line-clamp-2">{{ $project->description }}</p>
+                        
+                        <div class="flex items-center gap-2 mb-6">
+                            @php
+                                $statusColors = [
+                                    'Planificación' => 'bg-amber-100 text-amber-600',
+                                    'En Progreso' => 'bg-blue-100 text-blue-600',
+                                    'Detenido' => 'bg-red-100 text-red-600',
+                                    'Completado' => 'bg-emerald-100 text-emerald-600',
+                                ];
+                                $priorityColors = [
+                                    'Baja' => 'bg-slate-100 text-slate-600',
+                                    'Media' => 'bg-indigo-100 text-indigo-600',
+                                    'Alta' => 'bg-orange-100 text-orange-600',
+                                    'Crítica' => 'bg-red-100 text-red-600',
+                                ];
+                            @endphp
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase {{ $statusColors[$project->status] ?? 'bg-slate-100 text-slate-600' }}">{{ $project->status }}</span>
+                            <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase {{ $priorityColors[$project->priority] ?? 'bg-slate-100 text-slate-600' }}">{{ $project->priority }}</span>
+                        </div>
+
+                        <div class="pt-6 border-t border-slate-50 flex items-center justify-between">
+                            <div class="flex -space-x-2">
+                                @foreach($project->users as $user)
+                                    <div class="w-8 h-8 rounded-full border-2 border-white bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm" title="{{ $user->name }}">
+                                        {{ substr($user->name, 0, 1) }}
+                                    </div>
+                                @endforeach
+                                @if($project->users->isEmpty())
+                                    <span class="text-[10px] text-slate-300 font-bold italic">Sin asignar</span>
+                                @endif
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Presupuesto</p>
+                                <p class="text-sm font-black text-[#1a2344]">${{ number_format($project->budget, 0) }}</p>
+                            </div>
                         </div>
                     </div>
                 @endforeach
@@ -70,7 +116,7 @@
                 <div class="bg-white rounded-[40px] shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                     <div class="p-8 border-b border-slate-100 flex items-center justify-between">
                         <div>
-                            <h3 class="text-2xl font-black text-[#1a2344]">Crear Nuevo Proyecto</h3>
+                            <h3 class="text-2xl font-black text-[#1a2344]">{{ $projectId ? 'Editar Proyecto' : 'Crear Nuevo Proyecto' }}</h3>
                             <p class="text-sm text-slate-400 font-medium">Completa la información del proyecto</p>
                         </div>
                         <button wire:click="$set('showModal', false)" class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
@@ -131,17 +177,25 @@
                         </div>
 
                         <div>
-                            <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Responsable</label>
-                            <select wire:model="responsibleId" class="w-full h-12 px-4 bg-slate-50 border-2 border-slate-50 rounded-2xl outline-none focus:border-[#8b5cf6] focus:bg-white transition-all text-[#1a2344] font-bold appearance-none cursor-pointer">
-                                <option value="">Selecciona un responsable</option>
-                                @foreach($employees as $employee)
-                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                            <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-4 block">Equipo Asignado (Usuarios)</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                @foreach($users as $user)
+                                    <label class="flex items-center gap-3 p-3 rounded-2xl border-2 transition-all cursor-pointer {{ in_array($user->id, $selectedUsers) ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-slate-50 border-transparent hover:border-slate-200' }}">
+                                        <input type="checkbox" wire:model.live="selectedUsers" value="{{ $user->id }}" class="hidden">
+                                        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                                            {{ substr($user->name, 0, 1) }}
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-slate-700 leading-tight">{{ $user->name }}</span>
+                                            <span class="text-[9px] text-slate-400 font-medium">{{ $user->position }}</span>
+                                        </div>
+                                    </label>
                                 @endforeach
-                            </select>
+                            </div>
                         </div>
 
                         <button wire:click="save" class="w-full h-14 bg-[#3b49ff] rounded-2xl text-white font-black text-lg shadow-xl shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all mt-4">
-                            Crear Proyecto
+                            {{ $projectId ? 'Guardar Cambios' : 'Crear Proyecto' }}
                         </button>
                     </div>
                 </div>

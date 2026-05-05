@@ -58,10 +58,21 @@ class User extends Authenticatable
         return $this->belongsTo(Team::class);
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     public function tasksRequested()
     {
         return $this->hasMany(Task::class, 'requested_by_id');
     }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
 
     protected function casts(): array
     {

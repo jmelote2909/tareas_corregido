@@ -16,9 +16,21 @@ class Project extends Model
     protected $fillable = [
         'name',
         'description',
+        'status',
+        'priority',
+        'start_date',
+        'end_date',
+        'budget',
         'color',
         'is_active',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+
 
     protected static function boot()
     {
@@ -39,7 +51,10 @@ class Project extends Model
     {
         return [
             'is_active' => 'boolean',
+            'start_date' => 'date',
+            'end_date' => 'date',
             'created_at' => 'datetime',
         ];
     }
+
 }

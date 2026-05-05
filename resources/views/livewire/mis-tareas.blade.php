@@ -47,7 +47,9 @@
                             <h1 class="text-3xl font-bold text-slate-800">Mis Tareas</h1>
                             <p class="text-slate-500">
                                 {{ $selectedEmployee->name }} - {{ $selectedEmployee->role }}
-                                <button wire:click="$set('showSelector', true)" class="ml-2 text-teal-600 hover:underline text-sm">(cambiar)</button>
+                                @if(auth()->user()->role === 'admin')
+                                    <button wire:click="$set('showSelector', true)" class="ml-2 text-teal-600 hover:underline text-sm">(cambiar)</button>
+                                @endif
                             </p>
                         </div>
                     </div>

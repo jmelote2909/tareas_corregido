@@ -15,10 +15,19 @@ class Archivo extends Component
 
     public function render()
     {
-        $archivedTasks = Task::where('is_archived', true)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = Task::where('is_archived', true);
 
+        if (auth()->user()->role !== 'admin') {
+            $employee = auth()->user()->employee;
+            $query->where(function ($q) use ($employee) {
+                $q->where('requested_by_id', auth()->id());
+                if ($employee) {
+                    $q->orWhere('assigned_to_id', $employee->id);
+                }
+            });
+        }
+
+        $archivedTasks = $query->orderBy('created_at', 'desc')->get();
         $employees = Employee::all();
 
         return view('livewire.archivo', [
