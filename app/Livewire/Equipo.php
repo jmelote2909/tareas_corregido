@@ -229,9 +229,37 @@ class Equipo extends Component
         $this->showMemberModal = false;
     }
 
+    public function removeFromTeam($id)
+    {
+        \Illuminate\Support\Facades\Log::info('removeFromTeam triggered for ID: ' . $id);
+        $employee = Employee::findOrFail($id);
+        
+        // Find or create the "Sin Asignar" team
+        $unassignedTeam = Team::firstOrCreate(
+            ['name' => 'Sin Asignar'],
+            [
+                'description' => 'Miembros que no tienen un equipo específico asignado',
+                'color' => '#94a3b8' // Slate color
+            ]
+        );
+
+        if ($employee->user_id) {
+            User::find($employee->user_id)?->update(['team_id' => $unassignedTeam->id]);
+        }
+        $employee->update(['team_id' => $unassignedTeam->id]);
+
+        // If the current team is the one being viewed, it will disappear from the list
+    }
+
     public function deleteMember($id)
     {
         $employee = Employee::findOrFail($id);
+        
+        // Don't allow deleting yourself
+        if ($employee->user_id === auth()->id()) {
+            return;
+        }
+
         if ($employee->user_id) {
             User::find($employee->user_id)?->delete();
         }
@@ -241,7 +269,7 @@ class Equipo extends Component
     public function render()
     {
         $teams = Team::all();
-        $employees = collect();
+        $employees = Employee::all(); // Load all for the teams grid avatars
         $selectedTeam = null;
         $availableUsers = collect();
 
