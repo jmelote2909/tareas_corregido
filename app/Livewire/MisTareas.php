@@ -46,11 +46,12 @@ class MisTareas extends Component
         
         $tasks = [];
         if ($selectedEmployee) {
-            $tasks = Task::with(['requestedBy', 'attachments', 'comments'])
-                ->where('assigned_to_id', $this->selectedEmployeeId)
-                ->orderBy('priority', 'asc') // This should be a custom order really
-                ->get();
-        }
+            $tasks = Task::with(['requestedBy'])
+                        ->where('assigned_to_id', $this->selectedEmployeeId)
+                        ->orderBy('priority', 'asc')
+                        ->limit(50)
+                        ->get();
+     }
 
         $pendingTasks = collect($tasks)->where('status', 'pendiente');
         $inProgressTasks = collect($tasks)->where('status', 'en_proceso');

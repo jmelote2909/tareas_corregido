@@ -40,14 +40,19 @@ class NuevaSolicitud extends Component
 
     public function updatedSelectedUserId($value)
     {
+        if (empty($value)) {
+            $this->requesterDepartment = '';
+            return;
+        }
+
         $user = \App\Models\User::find($value);
+
         if ($user) {
             $this->requesterDepartment = $user->department;
         } else {
             $this->requesterDepartment = '';
         }
     }
-
     public function toggleNewCategoryInput()
     {
         $this->showNewCategoryInput = !$this->showNewCategoryInput;

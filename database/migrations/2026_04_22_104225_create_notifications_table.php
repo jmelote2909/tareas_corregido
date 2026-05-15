@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->uuid('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('type'); // task_assigned, task_updated, task_comment, task_completed
             $table->string('title');
             $table->text('message');
-            $table->foreignId('task_id')->nullable()->constrained()->onDelete('cascade');
+            $table->uuid('task_id')->nullable();
+            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
             $table->string('task_title')->nullable();
             $table->boolean('read')->default(false);
             $table->json('metadata')->nullable();

@@ -66,21 +66,27 @@ class Dashboard extends Component
             });
         }
 
-        $allTasks = $tasksQuery->orderBy('created_at', 'desc')->get();
+        $baseQuery = clone $tasksQuery;
 
-        $stats = [
-            'total'      => $allTasks->count(),
-            'pendiente'  => $allTasks->where('status', 'pendiente')->count(),
-            'en_proceso' => $allTasks->where('status', 'en_proceso')->count(),
-            'completada' => $allTasks->where('status', 'completada')->count(),
-            'urgente'    => $allTasks->where('priority', 'alta')->count(),
-            'eficiencia' => $allTasks->count() > 0
-                ? round(($allTasks->where('status', 'completada')->count() / $allTasks->count()) * 100)
-                : 0,
-        ];
+          $totalTasks = (clone $baseQuery)->count();
+          $completedCount = (clone $baseQuery)->where('status', 'completada')->count();
 
-        $unassignedTasks = $allTasks->filter(fn($t) => !$t->assigned_to_id);
-        $assignedTasks   = $allTasks->filter(fn($t) => $t->assigned_to_id);
+          $stats = [
+              'total' => $totalTasks,
+              'pendiente' => (clone $baseQuery)->where('status', 'pendiente')->count(),
+              'en_proceso' => (clone $baseQuery)->where('status', 'en_proceso')->count(),
+              'completada' => $completedCount,
+              'urgente' => (clone $baseQuery)->where('priority', 'alta')->count(),
+              'eficiencia' => $totalTasks > 0 ? round(($completedCount / $totalTasks) * 100) : 0,
+                   ];
+
+              $allTasks = (clone $baseQuery)
+               ->orderBy('created_at', 'desc')
+               ->limit(50)
+               ->get();
+
+              $unassignedTasks = $allTasks->whereNull('assigned_to_id');
+              $assignedTasks = $allTasks->whereNotNull('assigned_to_id');
 
         $employees = Employee::where('is_active', true)->orderBy('name')->get();
 

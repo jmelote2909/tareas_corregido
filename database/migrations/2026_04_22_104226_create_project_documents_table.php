@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('project_documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained()->onDelete('cascade');
+            $table->uuid('project_id');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
             $table->string('name');
             $table->string('type');
             $table->string('url');
             $table->integer('size');
-            $table->foreignId('uploaded_by_id')->constrained('users');
+            $table->uuid('uploaded_by_id');
+            $table->foreign('uploaded_by_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
