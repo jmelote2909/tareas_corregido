@@ -70,6 +70,22 @@ class DetalleTarea extends Component
         $task->update(['assigned_to_id' => $employeeId ?: null]);
     }
 
+    public function deleteTask()
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Acción no autorizada.');
+        }
+
+        $task = Task::findOrFail($this->taskId);
+        
+        // Safety cascade deletion
+        $task->comments()->delete();
+        $task->attachments()->delete();
+        $task->delete();
+
+        return redirect()->route('dashboard');
+    }
+
     public function render()
     {
         $task = Task::with(['requestedBy', 'assignedTo', 'comments', 'attachments'])->findOrFail($this->taskId);

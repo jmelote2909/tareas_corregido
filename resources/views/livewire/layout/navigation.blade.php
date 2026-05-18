@@ -35,7 +35,7 @@ new class extends Component
         </div>
 
         <!-- Center: Main Nav (Desktop) -->
-        <div class="hidden xl:flex items-center gap-1">
+        <div class="hidden lg:flex items-center gap-1">
             <x-nav-button :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">Dashboard</x-nav-button>
             @if(in_array(auth()->user()->role, ['admin', 'requester', 'employee']))
                 <x-nav-button :href="route('nueva-solicitud')" :active="request()->routeIs('nueva-solicitud')" icon="plus">Nueva</x-nav-button>
@@ -67,7 +67,7 @@ new class extends Component
             </div>
 
             <!-- Hamburger Button (Mobile/Tablet Only) -->
-            <button @click="open = !open" class="xl:hidden text-white/60 hover:text-white transition-colors ml-2 p-1.5 bg-white/5 rounded-xl border border-white/10">
+            <button @click="open = !open" class="lg:hidden text-white/60 hover:text-white transition-colors ml-2 p-1.5 bg-white/5 rounded-xl border border-white/10">
                 <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                 <svg x-show="open" style="display: none;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
             </button>
@@ -83,7 +83,7 @@ new class extends Component
          x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="opacity-100 transform scale-100"
          x-transition:leave-end="opacity-0 transform scale-95"
-         class="xl:hidden mt-3 p-3 bg-[#131a33] rounded-2xl border border-white/5 space-y-1">
+         class="lg:hidden mt-3 p-3 bg-[#131a33] rounded-2xl border border-white/5 space-y-1">
         
         <x-nav-button :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard" class="w-full justify-start py-2.5">Dashboard</x-nav-button>
         @if(in_array(auth()->user()->role, ['admin', 'requester', 'employee']))

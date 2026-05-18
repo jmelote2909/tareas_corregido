@@ -136,7 +136,7 @@
                         {{-- Attachments --}}
                         <div class="space-y-3">
                             <label class="text-sm font-semibold text-slate-700">Adjuntar Archivos</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 {{-- Photos --}}
                                 <label class="cursor-pointer">
                                     <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
@@ -154,15 +154,6 @@
                                     </div>
                                     <input type="file" wire:model="audio" class="hidden" accept="audio/*, .aac, .m4a, .mp3, .wav, audio/aac, audio/x-aac, audio/mp4, audio/m4a">
                                 </label>
-
-                                {{-- Record Audio --}}
-                                <div x-data="audioRecorder()">
-                                    <button type="button" @click="recording ? stop() : start()" :class="recording ? 'bg-red-50 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-700'" class="w-full flex items-center justify-center gap-2 border-2 transition-colors rounded-xl h-12 font-semibold text-sm">
-                                        <svg x-show="!recording" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                                        <div x-show="recording" class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                        <span x-text="recording ? 'Detener' : 'Grabar Audio'"></span>
-                                    </button>
-                                </div>
                             </div>
 
                             @if($audio)
@@ -185,7 +176,6 @@
                                 </div>
                             @endif
                         </div>
-
                         <button type="submit" wire:loading.attr="disabled" class="w-full h-14 bg-gradient-to-r from-purple-600 to-pink-600 hover:scale-[1.02] active:scale-[0.98] transition-all rounded-xl text-white font-bold text-lg shadow-lg shadow-purple-200">
                             <span wire:loading.remove>Enviar Solicitud</span>
                             <span wire:loading>Enviando...</span>
@@ -195,61 +185,4 @@
             </div>
         </div>
     </div>
-    
-    <script>
-        function audioRecorder() {
-            return {
-                recording: false,
-                mediaRecorder: null,
-                audioChunks: [],
-                
-                async start() {
-                    try {
-                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                            const currentOrigin = window.location.origin;
-                            alert('⚠️ GRABAR AUDIO REQUIERE CONEXIÓN SEGURA (HTTPS) O LOCALHOST.\n\nPara solucionarlo en Google Chrome en tu Tablet:\n\n1. Abre una nueva pestaña y ve a:\n   chrome://flags/#unsafely-treat-insecure-origin-as-secure\n\n2. Activa la opción (Enabled).\n\n3. En el cuadro de texto, escribe exactamente esto:\n   ' + currentOrigin + '\n\n4. Pulsa el botón "Relaunch" abajo para reiniciar Chrome.\n\n¡Y listo! Ya te dejará grabar audios directamente desde la tablet. \n\nO si lo prefieres, usa el botón "Subir Audio" para seleccionar un archivo .aac ya grabado.');
-                            return;
-                        }
-
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        this.mediaRecorder = new MediaRecorder(stream);
-                        this.audioChunks = [];
-                        
-                        this.mediaRecorder.ondataavailable = (event) => {
-                            this.audioChunks.push(event.data);
-                        };
-                        
-                        this.mediaRecorder.onstop = async () => {
-                            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-                            const file = new File([audioBlob], "recorded_audio.wav", { type: 'audio/wav' });
-                            
-                            // Upload to Livewire
-                            @this.upload('audio', file, (uploadedFilename) => {
-                                // Success
-                            }, () => {
-                                // Error
-                            }, (event) => {
-                                // Progress
-                            });
-                        };
-                        
-                        this.mediaRecorder.start();
-                        this.recording = true;
-                    } catch (err) {
-                        alert('No se pudo acceder al micrófono: ' + err.message);
-                    }
-                },
-                
-                stop() {
-                    if (this.mediaRecorder && this.recording) {
-                        this.mediaRecorder.stop();
-                        this.recording = false;
-                        
-                        // Stop all tracks to release microphone
-                        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                    }
-                }
-            }
-        }
-    </script>
 </div>
