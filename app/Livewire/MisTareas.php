@@ -45,13 +45,18 @@ class MisTareas extends Component
         $selectedEmployee = $this->selectedEmployeeId ? Employee::find($this->selectedEmployeeId) : null;
         
         $tasks = [];
-        if ($selectedEmployee) {
+        if (auth()->user()->role === 'requester') {
+            $tasks = Task::with(['requestedBy'])
+                        ->where('requested_by_id', auth()->id())
+                        ->orderBy('priority', 'asc')
+                        ->get();
+        } elseif ($selectedEmployee) {
             $tasks = Task::with(['requestedBy'])
                         ->where('assigned_to_id', $this->selectedEmployeeId)
+                        ->orWhere('requested_by_id', auth()->id())
                         ->orderBy('priority', 'asc')
-                        ->limit(50)
                         ->get();
-     }
+        }
 
         $pendingTasks = collect($tasks)->where('status', 'pendiente');
         $inProgressTasks = collect($tasks)->where('status', 'en_proceso');

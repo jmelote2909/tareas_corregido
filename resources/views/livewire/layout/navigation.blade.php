@@ -36,7 +36,7 @@ new class extends Component
     <!-- Center: Main Nav -->
     <div class="flex items-center gap-1">
         <x-nav-button :href="route('dashboard')" :active="request()->routeIs('dashboard')" icon="dashboard">Dashboard</x-nav-button>
-        @if(auth()->user()->role === 'admin')
+        @if(in_array(auth()->user()->role, ['admin', 'requester', 'employee']))
             <x-nav-button :href="route('nueva-solicitud')" :active="request()->routeIs('nueva-solicitud')" icon="plus">Nueva</x-nav-button>
         @endif
         <x-nav-button :href="route('mis-tareas')" :active="request()->routeIs('mis-tareas')" icon="tasks">Mis Tareas</x-nav-button>

@@ -20,7 +20,7 @@ class NuevaSolicitud extends Component
     public $showNewCategoryInput = false;
     public $priority = '';
     public $dueDate = '';
-    public $selectedUserId = '';
+    public $requesterName = '';
     public $requesterDepartment = '';
     
     public $photos = [];
@@ -31,28 +31,23 @@ class NuevaSolicitud extends Component
 
     public function mount()
     {
-        if (auth()->user()->role !== 'admin') {
+        $allowedRoles = ['admin', 'requester', 'employee'];
+        if (!in_array(auth()->user()->role, $allowedRoles)) {
             return redirect()->route('dashboard');
         }
-        $this->selectedUserId = auth()->id();
-        $this->updatedSelectedUserId($this->selectedUserId);
+        
+        $this->requesterName = auth()->user()->name;
+        $this->requesterDepartment = auth()->user()->department ?? '';
     }
 
-    public function updatedSelectedUserId($value)
+    public function deleteCategory($id)
     {
-        if (empty($value)) {
-            $this->requesterDepartment = '';
-            return;
-        }
-
-        $user = \App\Models\User::find($value);
-
-        if ($user) {
-            $this->requesterDepartment = $user->department;
-        } else {
-            $this->requesterDepartment = '';
+        $category = Category::find($id);
+        if ($category) {
+            $category->delete();
         }
     }
+
     public function toggleNewCategoryInput()
     {
         $this->showNewCategoryInput = !$this->showNewCategoryInput;
@@ -84,7 +79,8 @@ class NuevaSolicitud extends Component
             'description' => 'required|min:10',
             'category_id' => 'required',
             'priority' => 'required',
-            'selectedUserId' => 'required',
+            'requesterName' => 'required',
+            'requesterDepartment' => 'nullable',
             'dueDate' => 'nullable|date',
         ]);
 
@@ -95,7 +91,9 @@ class NuevaSolicitud extends Component
                 'status' => 'pendiente',
                 'priority' => $this->priority,
                 'due_date' => $this->dueDate ?: null,
-                'requested_by_id' => $this->selectedUserId,
+                'requested_by_id' => auth()->id(),
+                'requester_name' => $this->requesterName,
+                'requester_department' => $this->requesterDepartment,
                 'category_id' => $this->category_id,
             ]);
 

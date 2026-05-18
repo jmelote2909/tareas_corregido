@@ -42,18 +42,14 @@
                             </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="space-y-1">
-                                    <label class="text-sm font-semibold text-slate-700">Seleccionar Usuario *</label>
-                                    <select wire:model.change="selectedUserId" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
-                                        <option value="">Seleccione un usuario...</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('selectedUserId') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
+                                    <label class="text-sm font-semibold text-slate-700">Nombre del Solicitante *</label>
+                                    <input type="text" wire:model="requesterName" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    @error('requesterName') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="space-y-1">
                                     <label class="text-sm font-semibold text-slate-700">Departamento</label>
-                                    <input type="text" wire:model="requesterDepartment" readonly class="w-full bg-slate-50 border-2 border-blue-100 rounded-lg h-10 px-3 text-slate-500 cursor-not-allowed">
+                                    <input type="text" wire:model="requesterDepartment" class="w-full bg-white border-2 border-blue-100 rounded-lg h-10 px-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                                    @error('requesterDepartment') <span class="text-xs text-red-500">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div>
@@ -93,6 +89,19 @@
                                 
                                 @if($showNewCategoryInput)
                                     <div class="mt-2 p-4 bg-indigo-50 rounded-xl border-2 border-indigo-100 animate-in fade-in slide-in-from-top-2">
+                                        <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Gestionar Categorías</label>
+                                        
+                                        <div class="space-y-2 mb-4 max-h-32 overflow-y-auto">
+                                            @foreach($categories as $cat)
+                                                <div class="flex items-center justify-between bg-white p-2 rounded-lg border border-indigo-100">
+                                                    <span class="text-sm font-bold text-slate-700">{{ $cat->name }}</span>
+                                                    <button type="button" wire:click="deleteCategory('{{ $cat->id }}')" class="text-red-400 hover:text-red-600 transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
                                         <label class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2 block">Nueva Categoría</label>
                                         <div class="flex gap-2">
                                             <input type="text" wire:model="newCategoryName" placeholder="Nombre..." class="flex-1 h-10 bg-white border-2 border-indigo-100 rounded-lg px-3 outline-none focus:border-indigo-500 text-sm font-bold">
@@ -127,9 +136,9 @@
                         {{-- Attachments --}}
                         <div class="space-y-3">
                             <label class="text-sm font-semibold text-slate-700">Adjuntar Archivos</label>
-                            <div class="flex gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {{-- Photos --}}
-                                <label class="flex-1 cursor-pointer">
+                                <label class="cursor-pointer">
                                     <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
                                         Adjuntar Foto
@@ -138,13 +147,22 @@
                                 </label>
                                 
                                 {{-- Audio File --}}
-                                <label class="flex-1 cursor-pointer">
+                                <label class="cursor-pointer">
                                     <div class="flex items-center justify-center gap-2 border-2 border-blue-100 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl h-12 text-blue-700 font-semibold text-sm">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                                        Adjuntar Audio
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                        Subir Audio
                                     </div>
                                     <input type="file" wire:model="audio" class="hidden" accept="audio/*">
                                 </label>
+
+                                {{-- Record Audio --}}
+                                <div x-data="audioRecorder()">
+                                    <button type="button" @click="recording ? stop() : start()" :class="recording ? 'bg-red-50 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-100 text-emerald-700'" class="w-full flex items-center justify-center gap-2 border-2 transition-colors rounded-xl h-12 font-semibold text-sm">
+                                        <svg x-show="!recording" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                        <div x-show="recording" class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                        <span x-text="recording ? 'Detener' : 'Grabar Audio'"></span>
+                                    </button>
+                                </div>
                             </div>
 
                             @if($audio)
@@ -177,4 +195,60 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        function audioRecorder() {
+            return {
+                recording: false,
+                mediaRecorder: null,
+                audioChunks: [],
+                
+                async start() {
+                    try {
+                        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                            alert('Tu navegador no permite grabar audio en conexiones no seguras (HTTP). Por favor, usa HTTPS o activa "herd secure".');
+                            return;
+                        }
+
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        this.mediaRecorder = new MediaRecorder(stream);
+                        this.audioChunks = [];
+                        
+                        this.mediaRecorder.ondataavailable = (event) => {
+                            this.audioChunks.push(event.data);
+                        };
+                        
+                        this.mediaRecorder.onstop = async () => {
+                            const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+                            const file = new File([audioBlob], "recorded_audio.wav", { type: 'audio/wav' });
+                            
+                            // Upload to Livewire
+                            @this.upload('audio', file, (uploadedFilename) => {
+                                // Success
+                            }, () => {
+                                // Error
+                            }, (event) => {
+                                // Progress
+                            });
+                        };
+                        
+                        this.mediaRecorder.start();
+                        this.recording = true;
+                    } catch (err) {
+                        alert('No se pudo acceder al micrófono: ' + err.message);
+                    }
+                },
+                
+                stop() {
+                    if (this.mediaRecorder && this.recording) {
+                        this.mediaRecorder.stop();
+                        this.recording = false;
+                        
+                        // Stop all tracks to release microphone
+                        this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    }
+                }
+            }
+        }
+    </script>
 </div>

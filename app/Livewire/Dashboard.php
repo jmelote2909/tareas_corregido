@@ -62,7 +62,8 @@ class Dashboard extends Component
         if ($this->searchQuery) {
             $tasksQuery->where(function ($query) {
                 $query->where('title', 'like', '%' . $this->searchQuery . '%')
-                    ->orWhere('description', 'like', '%' . $this->searchQuery . '%');
+                    ->orWhere('description', 'like', '%' . $this->searchQuery . '%')
+                    ->orWhere('requester_name', 'like', '%' . $this->searchQuery . '%');
             });
         }
 

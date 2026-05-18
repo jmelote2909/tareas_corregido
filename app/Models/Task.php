@@ -24,6 +24,8 @@ class Task extends Model
         'requested_by_id',
         'project_id',
         'category_id',
+        'requester_name',
+        'requester_department',
         'is_archived',
         'completed_at',
     ];

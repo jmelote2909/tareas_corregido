@@ -38,7 +38,7 @@
                     @endif
                 </div>
                 <h1 class="text-2xl font-black">{{ $task->title }}</h1>
-                <p class="text-white/70 text-sm mt-1">Solicitud de {{ $task->requestedBy->name ?? 'N/A' }} - {{ $task->requestedBy->department ?? 'N/A' }}</p>
+                <p class="text-white/70 text-sm mt-1">Solicitud de {{ $task->requester_name ?? $task->requestedBy->name ?? 'N/A' }} - {{ $task->requester_department ?? $task->requestedBy->department ?? 'N/A' }}</p>
             </div>
             <div class="flex gap-2">
                 @if($isAdmin || $task->requested_by_id === auth()->id())
@@ -206,8 +206,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-slate-800">{{ $task->requestedBy->name ?? 'N/A' }}</p>
-                            <p class="text-[10px] text-slate-400 uppercase">{{ $task->requestedBy->department ?? 'N/A' }}</p>
+                            <p class="text-sm font-bold text-slate-800">{{ $task->requester_name ?? $task->requestedBy->name ?? 'N/A' }}</p>
+                            <p class="text-[10px] text-slate-400 uppercase">{{ $task->requester_department ?? $task->requestedBy->department ?? 'N/A' }}</p>
                         </div>
                     </div>
                     <div class="flex justify-between text-sm py-2 border-b border-slate-50">
