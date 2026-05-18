@@ -136,7 +136,7 @@
                         {{-- Attachments --}}
                         <div class="space-y-3">
                             <label class="text-sm font-semibold text-slate-700">Adjuntar Archivos</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {{-- Photos --}}
                                 <label class="cursor-pointer">
                                     <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
@@ -152,7 +152,16 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                                         Subir Audio
                                     </div>
-                                    <input type="file" wire:model="audio" class="hidden" accept="audio/*, .aac, .m4a, .mp3, .wav, audio/aac, audio/x-aac, audio/mp4, audio/m4a">
+                                    <input type="file" wire:model="audio" class="hidden" accept="audio/*, .mp3, .wav, .m4a, .aac, .ogg, .wma">
+                                </label>
+
+                                {{-- Document File --}}
+                                <label class="cursor-pointer">
+                                    <div class="flex items-center justify-center gap-2 border-2 border-emerald-100 bg-emerald-50 hover:bg-emerald-100 transition-colors rounded-xl h-12 text-emerald-700 font-semibold text-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                        Subir Documento
+                                    </div>
+                                    <input type="file" wire:model="documents" multiple class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
                                 </label>
                             </div>
 
@@ -171,6 +180,18 @@
                                     @foreach($photos as $photo)
                                         <div class="relative group aspect-square rounded-lg overflow-hidden border-2 border-slate-100">
                                             <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover">
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            @if(count($documents) > 0)
+                                <div class="space-y-2 mt-2">
+                                    @foreach($documents as $index => $doc)
+                                        <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50/50 p-2.5 rounded-lg border border-emerald-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                            <span class="truncate flex-1">{{ $doc->getClientOriginalName() }}</span>
+                                            <button type="button" wire:click="documents.splice({{ $index }}, 1)" class="text-emerald-400 hover:text-emerald-600 font-black px-1.5 py-0.5 rounded-md hover:bg-emerald-100">✕</button>
                                         </div>
                                     @endforeach
                                 </div>

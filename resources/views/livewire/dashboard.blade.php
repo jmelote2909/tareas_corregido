@@ -9,6 +9,21 @@
         }
     }
 
+    function renderPriorityBadge($priority) {
+        switch ($priority) {
+            case 'urgente': 
+                return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-rose-500/30 border border-red-700 animate-pulse uppercase tracking-wider">🔥 ¡URGENTE!</span>';
+            case 'alta': 
+                return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20 border border-orange-500 uppercase tracking-wide">⚡ ALTA</span>';
+            case 'media': 
+                return '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">✨ Media</span>';
+            case 'baja': 
+                return '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">Baja</span>';
+            default: 
+                return '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">' . ucfirst($priority) . '</span>';
+        }
+    }
+
     function getStatusColor($status) {
         switch ($status) {
             case 'completada': return 'bg-emerald-500 text-white';
@@ -176,13 +191,18 @@
                         </div>
                         <div class="space-y-2">
                             @foreach($unassignedTasks as $task)
-                            <a href="{{ route('detalle-tarea', $task->id) }}" class="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all group border-2 border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 hover:shadow-lg hover:border-orange-400 ring-1 ring-orange-200">
-                                <div class="w-1.5 h-14 rounded-full flex-shrink-0 bg-orange-500"></div>
+                            <a href="{{ route('detalle-tarea', $task->id) }}" class="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all group border-2 {{ $task->priority === 'urgente' ? 'border-red-500 bg-gradient-to-r from-red-50 to-rose-50/50 hover:border-red-600 ring-2 ring-red-300 shadow-lg shadow-red-500/10 animate-[pulse_3s_infinite]' : 'border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50 hover:border-orange-400 ring-1 ring-orange-200 hover:shadow-lg' }}">
+                                <div class="w-1.5 h-14 rounded-full flex-shrink-0 {{ $task->priority === 'urgente' ? 'bg-red-600' : 'bg-orange-500' }}"></div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-slate-900 truncate">{{ $task->title }}</h3>
+                                    <h3 class="font-bold text-slate-900 truncate flex items-center gap-2">
+                                        {{ $task->title }}
+                                        @if($task->priority === 'urgente')
+                                            <span class="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-md animate-bounce">🚨</span>
+                                        @endif
+                                    </h3>
                                     <p class="text-sm text-slate-500 truncate">{{ $task->description }}</p>
                                     <div class="flex flex-wrap items-center gap-2 mt-2">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ getPriorityColor($task->priority) }}">{{ ucfirst($task->priority) }}</span>
+                                        {!! renderPriorityBadge($task->priority) !!}
                                         <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ getStatusColor($task->status) }}">{{ formatStatus($task->status) }}</span>
                                     </div>
                                 </div>
@@ -227,13 +247,18 @@
                         @else
                         <div class="space-y-2">
                             @foreach($assignedTasks as $task)
-                            <a href="{{ route('detalle-tarea', $task->id) }}" class="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all group border-2 border-slate-100 bg-white hover:shadow-md hover:border-slate-200">
-                                <div class="w-1.5 h-14 rounded-full flex-shrink-0" style="background-color: {{ $task->assignedTo->color ?? '#9ca3af' }}"></div>
+                            <a href="{{ route('detalle-tarea', $task->id) }}" class="flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all group border-2 {{ $task->priority === 'urgente' ? 'border-red-500 bg-gradient-to-r from-red-50 to-rose-50/50 hover:border-red-600 ring-2 ring-red-300 shadow-lg shadow-red-500/10 animate-[pulse_3s_infinite]' : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-md' }}">
+                                <div class="w-1.5 h-14 rounded-full flex-shrink-0" style="background-color: {{ $task->priority === 'urgente' ? '#ef4444' : ($task->assignedTo->color ?? '#9ca3af') }}"></div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-slate-900 truncate">{{ $task->title }}</h3>
+                                    <h3 class="font-bold text-slate-900 truncate flex items-center gap-2">
+                                        {{ $task->title }}
+                                        @if($task->priority === 'urgente')
+                                            <span class="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-md animate-bounce">🚨</span>
+                                        @endif
+                                    </h3>
                                     <p class="text-sm text-slate-500 truncate">{{ $task->description }}</p>
                                     <div class="flex flex-wrap items-center gap-2 mt-2">
-                                        <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ getPriorityColor($task->priority) }}">{{ ucfirst($task->priority) }}</span>
+                                        {!! renderPriorityBadge($task->priority) !!}
                                         <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ getStatusColor($task->status) }}">{{ formatStatus($task->status) }}</span>
                                     </div>
                                 </div>
@@ -406,11 +431,16 @@
                                 <div class="text-center py-8 text-sm text-slate-400 font-medium">No hay tareas</div>
                             @else
                                 @foreach($columnTasks as $task)
-                                    <a href="{{ route('detalle-tarea', $task->id) }}" class="block bg-white border-2 border-slate-200 rounded-xl p-3 cursor-pointer hover:shadow-md transition-all hover:border-indigo-300">
-                                        <h4 class="font-semibold text-sm mb-2 text-slate-800 line-clamp-2">{{ $task->title }}</h4>
+                                    <a href="{{ route('detalle-tarea', $task->id) }}" class="block border-2 rounded-xl p-3 cursor-pointer transition-all {{ $task->priority === 'urgente' ? 'border-red-500 bg-gradient-to-br from-red-50 to-rose-50/50 hover:border-red-600 ring-1 ring-red-300 shadow-lg shadow-red-500/5 animate-[pulse_3s_infinite]' : 'bg-white border-slate-200 hover:shadow-md hover:border-indigo-300' }}">
+                                        <h4 class="font-bold text-sm mb-2 text-slate-800 line-clamp-2 flex items-center gap-1.5">
+                                            {{ $task->title }}
+                                            @if($task->priority === 'urgente')
+                                                <span class="text-xs bg-red-100 text-red-700 px-1 py-0.5 rounded animate-bounce">🚨</span>
+                                            @endif
+                                        </h4>
                                         <p class="text-xs text-slate-500 line-clamp-2 mb-3">{{ $task->description }}</p>
                                         <div class="flex items-center justify-between gap-2 mb-2">
-                                            <span class="text-[10px] px-2 py-0.5 rounded-full font-bold {{ getPriorityColor($task->priority) }}">{{ ucfirst($task->priority) }}</span>
+                                            {!! renderPriorityBadge($task->priority) !!}
                                         </div>
                                         @if($task->assignedTo)
                                             <div class="flex items-center gap-1.5 mt-3 pt-3 border-t border-slate-100">

@@ -25,6 +25,7 @@ class NuevaSolicitud extends Component
     
     public $photos = [];
     public $audio = null;
+    public $documents = [];
 
     public $success = false;
     public $error = '';
@@ -116,6 +117,17 @@ class NuevaSolicitud extends Component
                     'type' => 'audio',
                     'url' => '/storage/' . $path,
                     'name' => $this->audio->getClientOriginalName(),
+                ]);
+            }
+
+            // Handle documents
+            foreach ($this->documents as $doc) {
+                $path = $doc->store('attachments', 'public');
+                TaskAttachment::create([
+                    'task_id' => $task->id,
+                    'type' => 'document',
+                    'url' => '/storage/' . $path,
+                    'name' => $doc->getClientOriginalName(),
                 ]);
             }
 

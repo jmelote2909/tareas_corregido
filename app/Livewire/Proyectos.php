@@ -29,6 +29,7 @@ class Proyectos extends Component
     // History fields
     public $newHistoryText;
     public $newHistoryImage;
+    public $activeModalTab = 'history';
 
     public function mount()
     {
@@ -38,6 +39,7 @@ class Proyectos extends Component
     public function openModal($id = null)
     {
         $this->resetForm();
+        $this->activeModalTab = 'history';
         
         if ($id) {
             $this->projectId = $id;
@@ -68,6 +70,7 @@ class Proyectos extends Component
         $this->selectedUsers = [];
         $this->newHistoryText = '';
         $this->newHistoryImage = null;
+        $this->activeModalTab = 'history';
     }
 
     public function delete($id)
@@ -82,7 +85,7 @@ class Proyectos extends Component
 
         $this->validate([
             'newHistoryText' => 'required_without:newHistoryImage',
-            'newHistoryImage' => 'nullable|image|max:5120',
+            'newHistoryImage' => 'nullable|file|max:10240',
         ]);
 
         $imagePath = null;

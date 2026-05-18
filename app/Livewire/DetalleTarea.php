@@ -22,6 +22,7 @@ class DetalleTarea extends Component
 
     public $newPhotos = [];
     public $newAudio = null;
+    public $newDocuments = [];
 
     public function mount($id)
     {
@@ -118,9 +119,21 @@ class DetalleTarea extends Component
             ]);
         }
 
+        // Handle documents
+        foreach ($this->newDocuments as $doc) {
+            $path = $doc->store('attachments', 'public');
+            \App\Models\TaskAttachment::create([
+                'task_id' => $task->id,
+                'type' => 'document',
+                'url' => '/storage/' . $path,
+                'name' => $doc->getClientOriginalName(),
+            ]);
+        }
+
         // Reset
         $this->newPhotos = [];
         $this->newAudio = null;
+        $this->newDocuments = [];
 
         session()->flash('success_attachments', 'Archivos adjuntados con éxito.');
     }

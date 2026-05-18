@@ -8,13 +8,13 @@
             default => 'bg-gray-100 text-gray-800'
         };
     };
-    $getPriorityColor = function($p) {
+    $getPriorityBadge = function($p) {
         return match($p) {
-            'urgente' => 'bg-red-500 text-white',
-            'alta' => 'bg-orange-500 text-white',
-            'media' => 'bg-blue-500 text-white',
-            'baja' => 'bg-gray-400 text-white',
-            default => 'bg-gray-400 text-white'
+            'urgente' => '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-rose-500/30 border border-red-700 animate-pulse uppercase tracking-wider">🔥 ¡URGENTE!</span>',
+            'alta' => '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md shadow-orange-500/20 border border-orange-500 uppercase tracking-wide">⚡ ALTA</span>',
+            'media' => '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500 text-white border border-blue-600">✨ Media</span>',
+            'baja' => '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700 border border-slate-300">Baja</span>',
+            default => '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700 border border-slate-300">' . ucfirst($p) . '</span>'
         };
     };
     $empColor = $task->assignedTo->color ?? '#6366f1';
@@ -27,12 +27,12 @@
     </a>
 
     {{-- Task Header Bar --}}
-    <div class="rounded-xl p-6 mb-6 text-white shadow-lg" style="background: linear-gradient(135deg, {{ $empColor }}, {{ $empColor }}dd)">
+    <div class="rounded-xl p-6 mb-6 text-white shadow-lg animate-in fade-in duration-300" style="background: linear-gradient(135deg, {{ $empColor }}, {{ $empColor }}dd)">
         <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $getStatusColor($task->status) }}">{{ ucfirst(str_replace('_', ' ', $task->status)) }}</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $getPriorityColor($task->priority) }}">{{ ucfirst($task->priority) }}</span>
+                    {!! $getPriorityBadge($task->priority) !!}
                     @if($task->assignedTo)
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/30">{{ $task->assignedTo->name }}</span>
                     @endif
@@ -169,6 +169,34 @@
                                 @endforeach
                             </div>
                         @endif
+
+                        {{-- Documents List --}}
+                        @php $documents = $task->attachments->where('type', 'document'); @endphp
+                        @if($documents->count() > 0)
+                            <div class="space-y-3">
+                                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">Documentos Adjuntos</h4>
+                                @foreach($documents as $doc)
+                                    @php
+                                        $ext = strtolower(pathinfo($doc->name, PATHINFO_EXTENSION));
+                                    @endphp
+                                    <div class="bg-emerald-50 rounded-2xl p-4 border-2 border-emerald-100 relative group flex items-center justify-between">
+                                        <a href="{{ $doc->url }}" target="_blank" class="flex items-center gap-3 flex-1 min-w-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500 shrink-0"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                            <div class="min-w-0">
+                                                <p class="text-sm font-bold text-slate-700 truncate" title="{{ $doc->name }}">{{ $doc->name }}</p>
+                                                <span class="text-[9px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-100/50 px-2 py-0.5 rounded-md mt-1 inline-block">{{ $ext ?: 'doc' }}</span>
+                                            </div>
+                                        </a>
+                                        
+                                        {{-- Delete Document Button --}}
+                                        <button type="button" wire:click="deleteAttachment('{{ $doc->id }}')" wire:confirm="¿Estás seguro de que deseas eliminar este documento?" class="text-red-500 hover:text-red-700 transition-colors font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 duration-200 ml-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
                 @else
                     <p class="text-center text-slate-400 italic py-4 mb-4">No hay archivos adjuntos en esta tarea todavía</p>
@@ -178,7 +206,7 @@
                 <div class="pt-6 border-t border-slate-100">
                     <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                        Añadir más fotos o audios
+                        Añadir más fotos, audios o documentos
                     </h4>
                     
                     @if (session()->has('success_attachments'))
@@ -188,7 +216,7 @@
                     @endif
 
                     <form wire:submit.prevent="addAttachments" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {{-- Photos --}}
                             <label class="cursor-pointer">
                                 <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
@@ -204,12 +232,21 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                                     Subir Audio
                                 </div>
-                                <input type="file" wire:model="newAudio" class="hidden" accept="audio/*, .aac, .m4a, .mp3, .wav, audio/aac, audio/x-aac, audio/mp4, audio/m4a">
+                                <input type="file" wire:model="newAudio" class="hidden" accept="audio/*, .mp3, .wav, .m4a, .aac, .ogg, .wma">
+                            </label>
+
+                            {{-- Document File --}}
+                            <label class="cursor-pointer">
+                                <div class="flex items-center justify-center gap-2 border-2 border-emerald-100 bg-emerald-50 hover:bg-emerald-100 transition-colors rounded-xl h-12 text-emerald-700 font-semibold text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                    Subir Documento
+                                </div>
+                                <input type="file" wire:model="newDocuments" multiple class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
                             </label>
                         </div>
 
                         {{-- Previews --}}
-                        @if($newAudio || count($newPhotos) > 0)
+                        @if($newAudio || count($newPhotos) > 0 || count($newDocuments) > 0)
                             <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3 mt-3 animate-in fade-in duration-200">
                                 <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Archivos seleccionados listos para subir:</div>
                                 
@@ -227,6 +264,18 @@
                                             <div class="relative group aspect-square rounded-lg overflow-hidden border-2 border-slate-200 shadow-sm bg-white">
                                                 <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover">
                                                 <button type="button" wire:click="newPhotos.splice({{ $index }}, 1)" class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold hover:bg-red-500 transition-colors">✕</button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @if(count($newDocuments) > 0)
+                                    <div class="space-y-2">
+                                        @foreach($newDocuments as $index => $doc)
+                                            <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                                <span class="truncate flex-1">{{ $doc->getClientOriginalName() }}</span>
+                                                <button type="button" wire:click="newDocuments.splice({{ $index }}, 1)" class="text-emerald-400 hover:text-emerald-600 font-black px-1.5 py-0.5 rounded-md hover:bg-emerald-100">✕</button>
                                             </div>
                                         @endforeach
                                     </div>
