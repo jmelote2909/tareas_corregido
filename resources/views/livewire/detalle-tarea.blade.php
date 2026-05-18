@@ -216,7 +216,7 @@
                     @endif
 
                     <form wire:submit.prevent="addAttachments" class="space-y-4">
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                             {{-- Photos --}}
                             <label class="cursor-pointer">
                                 <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
@@ -226,7 +226,7 @@
                                 <input type="file" wire:model="newPhotos" multiple class="hidden" accept="image/*">
                             </label>
                             
-                            {{-- Audio File --}}
+                            {{-- Audio File (Upload) --}}
                             <label class="cursor-pointer">
                                 <div class="flex items-center justify-center gap-2 border-2 border-blue-100 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl h-12 text-blue-700 font-semibold text-sm">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
@@ -234,6 +234,12 @@
                                 </div>
                                 <input type="file" wire:model="newAudio" class="hidden" accept=".mp3,.wav,.m4a,.aac,.ogg,.wma,.amr,.flac,.opus,.caf,.weba,.webm">
                             </label>
+
+                            {{-- Live Audio Recorder (Record) --}}
+                            <button type="button" @click="$dispatch('toggle-voice-recorder-new')" class="flex items-center justify-center gap-2 border-2 border-rose-100 bg-rose-50 hover:bg-rose-100 transition-colors rounded-xl h-12 text-rose-700 font-semibold text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                Grabar Nota
+                            </button>
 
                             {{-- Document File --}}
                             <label class="cursor-pointer">
@@ -243,6 +249,70 @@
                                 </div>
                                 <input type="file" wire:model="newDocuments" multiple class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
                             </label>
+                        </div>
+
+                        {{-- Live Audio Recorder Panel --}}
+                        <div x-data="voiceRecorderComponent('newAudio')" 
+                             @toggle-voice-recorder-new.window="toggle()" 
+                             class="mt-3 animate-in slide-in-from-top-2 duration-300"
+                             x-show="show" 
+                             x-cloak
+                             style="display: none;">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl text-white">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="relative flex h-3 w-3" x-show="isRecording">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>
+                                        </div>
+                                        <div class="h-3 w-3 rounded-full bg-slate-500" x-show="!isRecording"></div>
+                                        <span class="text-sm font-black tracking-widest font-mono text-slate-100" x-text="formattedTime">00:00</span>
+                                    </div>
+
+                                    <div class="flex items-center gap-0.5 h-6 shrink-0" x-show="isRecording">
+                                        <div class="w-0.5 bg-rose-500 rounded-full animate-[wave_1.2s_ease-in-out_infinite]" style="height: 40%;"></div>
+                                        <div class="w-0.5 bg-rose-500 rounded-full animate-[wave_0.8s_ease-in-out_infinite]" style="height: 80%;"></div>
+                                        <div class="w-0.5 bg-rose-500 rounded-full animate-[wave_1.5s_ease-in-out_infinite]" style="height: 50%;"></div>
+                                        <div class="w-0.5 bg-rose-500 rounded-full animate-[wave_1s_ease-in-out_infinite]" style="height: 90%;"></div>
+                                        <div class="w-0.5 bg-rose-500 rounded-full animate-[wave_0.7s_ease-in-out_infinite]" style="height: 60%;"></div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" 
+                                                x-show="!isRecording && !isUploading" 
+                                                @click="startRecording()" 
+                                                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 transition-all text-white font-extrabold text-xs rounded-xl shadow-md shadow-rose-600/25 flex items-center gap-1.5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                            Iniciar Micrófono
+                                        </button>
+
+                                        <button type="button" 
+                                                x-show="isRecording" 
+                                                @click="stopRecording()" 
+                                                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 active:scale-95 transition-all text-white font-extrabold text-xs rounded-xl shadow-md shadow-rose-600/25 flex items-center gap-1.5 animate-pulse">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/></svg>
+                                            Detener y Guardar
+                                        </button>
+
+                                        <button type="button" 
+                                                @click="toggle()" 
+                                                x-show="!isRecording && !isUploading" 
+                                                class="px-3 py-2 bg-slate-800 hover:bg-slate-750 active:scale-95 transition-all text-slate-300 font-bold text-xs rounded-xl">
+                                            Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div x-show="isUploading" class="mt-3 text-xs font-bold text-blue-400 flex items-center gap-2 animate-pulse">
+                                    <svg class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Subiendo grabación al servidor...
+                                </div>
+
+                                <div x-show="errorMessage" x-text="errorMessage" class="mt-3 text-xs font-bold text-rose-500 bg-rose-500/10 border border-rose-500/20 px-3 py-2 rounded-xl"></div>
+                            </div>
                         </div>
 
                         {{-- Previews --}}
@@ -360,7 +430,111 @@
                         </div>
                     @endif
                 </div>
-            </div>
         </div>
     </div>
 </div>
+
+<style>
+    @keyframes wave {
+        0%, 100% { transform: scaleY(0.3); }
+        50% { transform: scaleY(1); }
+    }
+</style>
+
+<script>
+    if (typeof window.voiceRecorderComponent === 'undefined') {
+        window.voiceRecorderComponent = function(wireVarName = 'audio') {
+            return {
+                show: false,
+                isRecording: false,
+                mediaRecorder: null,
+                audioChunks: [],
+                timerInterval: null,
+                secondsElapsed: 0,
+                isUploading: false,
+                errorMessage: '',
+
+                toggle() {
+                    this.show = !this.show;
+                    if (!this.show) {
+                        this.stopRecording();
+                        this.errorMessage = '';
+                    }
+                },
+
+                async startRecording() {
+                    this.errorMessage = '';
+                    this.audioChunks = [];
+                    this.secondsElapsed = 0;
+                    
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        
+                        let options = { mimeType: 'audio/webm' };
+                        if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                            options = { mimeType: 'audio/ogg' };
+                        }
+                        if (!MediaRecorder.isTypeSupported('audio/ogg')) {
+                            options = { mimeType: 'audio/mp4' };
+                        }
+
+                        this.mediaRecorder = new MediaRecorder(stream, options);
+                        
+                        this.mediaRecorder.ondataavailable = (event) => {
+                            if (event.data.size > 0) {
+                                this.audioChunks.push(event.data);
+                            }
+                        };
+
+                        this.mediaRecorder.onstop = async () => {
+                            const mime = this.mediaRecorder.mimeType || 'audio/webm';
+                            const ext = mime.includes('ogg') ? 'ogg' : (mime.includes('mp4') ? 'm4a' : 'webm');
+                            const audioBlob = new Blob(this.audioChunks, { type: mime });
+                            const file = new File([audioBlob], `grabacion_${Date.now()}.${ext}`, { type: mime });
+                            
+                            this.isUploading = true;
+                            
+                            @this.upload(wireVarName, file, 
+                                (uploadedFilename) => {
+                                    this.isUploading = false;
+                                    this.show = false;
+                                }, 
+                                (error) => {
+                                    this.isUploading = false;
+                                    this.errorMessage = 'Error al subir la grabación. Inténtalo de nuevo.';
+                                }
+                            );
+
+                            stream.getTracks().forEach(track => track.stop());
+                        };
+
+                        this.mediaRecorder.start(250);
+                        this.isRecording = true;
+                        
+                        this.timerInterval = setInterval(() => {
+                            this.secondsElapsed++;
+                        }, 1000);
+
+                    } catch (err) {
+                        console.error(err);
+                        this.errorMessage = 'No se pudo acceder al micrófono. Concede el permiso en la barra de direcciones.';
+                    }
+                },
+
+                stopRecording() {
+                    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+                        this.mediaRecorder.stop();
+                        clearInterval(this.timerInterval);
+                        this.isRecording = false;
+                    }
+                },
+
+                get formattedTime() {
+                    const mins = String(Math.floor(this.secondsElapsed / 60)).padStart(2, '0');
+                    const secs = String(this.secondsElapsed % 60).padStart(2, '0');
+                    return `${mins}:${secs}`;
+                }
+            };
+        };
+    }
+</script>
