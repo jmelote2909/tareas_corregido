@@ -114,14 +114,14 @@
                 </div>
             </div>
             {{-- Attachments --}}
-            @if($task->attachments->count() > 0)
-                <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                        Archivos Adjuntos
-                    </h3>
-                    
-                    <div class="space-y-6">
+            <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-lg p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.51a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    Archivos Adjuntos
+                </h3>
+                
+                @if($task->attachments->count() > 0)
+                    <div class="space-y-6 mb-6">
                         {{-- Images Grid --}}
                         @php $images = $task->attachments->where('type', 'image'); @endphp
                         @if($images->count() > 0)
@@ -156,8 +156,77 @@
                             </div>
                         @endif
                     </div>
+                @else
+                    <p class="text-center text-slate-400 italic py-4 mb-4">No hay archivos adjuntos en esta tarea todavía</p>
+                @endif
+
+                {{-- Add new attachments form --}}
+                <div class="pt-6 border-t border-slate-100">
+                    <h4 class="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Añadir más fotos o audios
+                    </h4>
+                    
+                    @if (session()->has('success_attachments'))
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-bold mb-4">
+                            {{ session('success_attachments') }}
+                        </div>
+                    @endif
+
+                    <form wire:submit.prevent="addAttachments" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {{-- Photos --}}
+                            <label class="cursor-pointer">
+                                <div class="flex items-center justify-center gap-2 border-2 border-purple-100 bg-purple-50 hover:bg-purple-100 transition-colors rounded-xl h-12 text-purple-700 font-semibold text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                                    Añadir Fotos
+                                </div>
+                                <input type="file" wire:model="newPhotos" multiple class="hidden" accept="image/*">
+                            </label>
+                            
+                            {{-- Audio File --}}
+                            <label class="cursor-pointer">
+                                <div class="flex items-center justify-center gap-2 border-2 border-blue-100 bg-blue-50 hover:bg-blue-100 transition-colors rounded-xl h-12 text-blue-700 font-semibold text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                    Subir Audio
+                                </div>
+                                <input type="file" wire:model="newAudio" class="hidden" accept="audio/*, .aac, .m4a, .mp3, .wav, audio/aac, audio/x-aac, audio/mp4, audio/m4a">
+                            </label>
+                        </div>
+
+                        {{-- Previews --}}
+                        @if($newAudio || count($newPhotos) > 0)
+                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-3 mt-3 animate-in fade-in duration-200">
+                                <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Archivos seleccionados listos para subir:</div>
+                                
+                                @if($newAudio)
+                                    <div class="flex items-center gap-2 text-xs font-bold text-blue-700 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                                        <span class="truncate flex-1">{{ $newAudio->getClientOriginalName() }}</span>
+                                        <button type="button" wire:click="$set('newAudio', null)" class="text-blue-400 hover:text-blue-600 font-black px-1.5 py-0.5 rounded-md hover:bg-blue-100">✕</button>
+                                    </div>
+                                @endif
+
+                                @if(count($newPhotos) > 0)
+                                    <div class="grid grid-cols-4 gap-2">
+                                        @foreach($newPhotos as $index => $photo)
+                                            <div class="relative group aspect-square rounded-lg overflow-hidden border-2 border-slate-200 shadow-sm bg-white">
+                                                <img src="{{ $photo->temporaryUrl() }}" class="w-full h-full object-cover">
+                                                <button type="button" wire:click="newPhotos.splice({{ $index }}, 1)" class="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold hover:bg-red-500 transition-colors">✕</button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                <button type="submit" wire:loading.attr="disabled" class="w-full h-11 bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold rounded-xl text-sm shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 mt-2">
+                                    <span wire:loading.remove>Guardar Nuevos Adjuntos</span>
+                                    <span wire:loading>Guardando...</span>
+                                </button>
+                            </div>
+                        @endif
+                    </form>
                 </div>
-            @endif
+            </div>
         </div>
 
         {{-- Sidebar --}}

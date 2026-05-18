@@ -6,9 +6,12 @@ use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\Employee;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class DetalleTarea extends Component
 {
+    use WithFileUploads;
+
     public $taskId;
     public $newComment = '';
     public $isEditing = false;
@@ -16,6 +19,9 @@ class DetalleTarea extends Component
     public $editTitle;
     public $editDescription;
     public $editDueDate;
+
+    public $newPhotos = [];
+    public $newAudio = null;
 
     public function mount($id)
     {
@@ -84,6 +90,39 @@ class DetalleTarea extends Component
         $task->delete();
 
         return redirect()->route('dashboard');
+    }
+
+    public function addAttachments()
+    {
+        $task = Task::findOrFail($this->taskId);
+
+        // Handle photos
+        foreach ($this->newPhotos as $photo) {
+            $path = $photo->store('attachments', 'public');
+            \App\Models\TaskAttachment::create([
+                'task_id' => $task->id,
+                'type' => 'image',
+                'url' => '/storage/' . $path,
+                'name' => $photo->getClientOriginalName(),
+            ]);
+        }
+
+        // Handle audio
+        if ($this->newAudio) {
+            $path = $this->newAudio->store('attachments', 'public');
+            \App\Models\TaskAttachment::create([
+                'task_id' => $task->id,
+                'type' => 'audio',
+                'url' => '/storage/' . $path,
+                'name' => $this->newAudio->getClientOriginalName(),
+            ]);
+        }
+
+        // Reset
+        $this->newPhotos = [];
+        $this->newAudio = null;
+
+        session()->flash('success_attachments', 'Archivos adjuntados con éxito.');
     }
 
     public function render()
