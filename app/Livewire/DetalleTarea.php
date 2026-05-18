@@ -125,6 +125,19 @@ class DetalleTarea extends Component
         session()->flash('success_attachments', 'Archivos adjuntados con éxito.');
     }
 
+    public function deleteAttachment($attachmentId)
+    {
+        $attachment = \App\Models\TaskAttachment::findOrFail($attachmentId);
+        
+        $relativePath = str_replace('/storage/', '', $attachment->url);
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($relativePath)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($relativePath);
+        }
+
+        $attachment->delete();
+        session()->flash('success_attachments', 'Archivo eliminado con éxito.');
+    }
+
     public function render()
     {
         $task = Task::with(['requestedBy', 'assignedTo', 'comments', 'attachments'])->findOrFail($this->taskId);

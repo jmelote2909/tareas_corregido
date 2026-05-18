@@ -127,12 +127,18 @@
                         @if($images->count() > 0)
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                 @foreach($images as $img)
-                                    <a href="{{ $img->url }}" target="_blank" class="group relative aspect-square rounded-xl overflow-hidden border-2 border-slate-50 hover:border-indigo-200 transition-all shadow-sm">
-                                        <img src="{{ $img->url }}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
-                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                                        </div>
-                                    </a>
+                                    <div class="relative group aspect-square rounded-xl overflow-hidden border-2 border-slate-50 hover:border-indigo-200 transition-all shadow-sm">
+                                        <a href="{{ $img->url }}" target="_blank" class="block w-full h-full">
+                                            <img src="{{ $img->url }}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                                            </div>
+                                        </a>
+                                        {{-- Delete Photo Button --}}
+                                        <button type="button" wire:click="deleteAttachment({{ $img->id }})" wire:confirm="¿Estás seguro de que deseas eliminar esta imagen?" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all transform scale-0 group-hover:scale-100 duration-200 z-10">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                        </button>
+                                    </div>
                                 @endforeach
                             </div>
                         @endif
@@ -142,11 +148,19 @@
                         @if($audios->count() > 0)
                             <div class="space-y-3">
                                 @foreach($audios as $audio)
-                                    <div class="bg-indigo-50 rounded-2xl p-4 border-2 border-indigo-100">
-                                        <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
-                                            Nota de voz adjunta
-                                        </p>
+                                    <div class="bg-indigo-50 rounded-2xl p-4 border-2 border-indigo-100 relative group">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <p class="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                                Nota de voz adjunta
+                                            </p>
+                                            
+                                            {{-- Delete Audio Button --}}
+                                            <button type="button" wire:click="deleteAttachment({{ $audio->id }})" wire:confirm="¿Estás seguro de que deseas eliminar este archivo de audio?" class="text-red-500 hover:text-red-700 transition-colors font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 duration-200">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                                                Eliminar
+                                            </button>
+                                        </div>
                                         <audio controls class="w-full h-10">
                                             <source src="{{ $audio->url }}">
                                             Tu navegador no soporta el elemento de audio.
