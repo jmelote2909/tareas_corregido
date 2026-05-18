@@ -152,7 +152,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                                         Subir Audio
                                     </div>
-                                    <input type="file" wire:model="audio" class="hidden" accept="audio/*">
+                                    <input type="file" wire:model="audio" class="hidden" accept="audio/*, .aac, .m4a, .mp3, .wav, audio/aac, audio/x-aac, audio/mp4, audio/m4a">
                                 </label>
 
                                 {{-- Record Audio --}}
@@ -206,7 +206,8 @@
                 async start() {
                     try {
                         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                            alert('Tu navegador no permite grabar audio en conexiones no seguras (HTTP). Por favor, usa HTTPS o activa "herd secure".');
+                            const currentOrigin = window.location.origin;
+                            alert('⚠️ GRABAR AUDIO REQUIERE CONEXIÓN SEGURA (HTTPS) O LOCALHOST.\n\nPara solucionarlo en Google Chrome en tu Tablet:\n\n1. Abre una nueva pestaña y ve a:\n   chrome://flags/#unsafely-treat-insecure-origin-as-secure\n\n2. Activa la opción (Enabled).\n\n3. En el cuadro de texto, escribe exactamente esto:\n   ' + currentOrigin + '\n\n4. Pulsa el botón "Relaunch" abajo para reiniciar Chrome.\n\n¡Y listo! Ya te dejará grabar audios directamente desde la tablet. \n\nO si lo prefieres, usa el botón "Subir Audio" para seleccionar un archivo .aac ya grabado.');
                             return;
                         }
 
