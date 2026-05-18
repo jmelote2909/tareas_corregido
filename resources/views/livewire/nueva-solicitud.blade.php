@@ -308,6 +308,11 @@
                 this.errorMessage = '';
                 this.audioChunks = [];
                 this.secondsElapsed = 0;
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    this.errorMessage = 'Tu navegador no soporta la grabación de audio o necesitas usar una conexión segura (HTTPS).';
+                    return;
+                }
                 
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
