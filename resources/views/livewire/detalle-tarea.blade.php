@@ -135,7 +135,7 @@
                                             </div>
                                         </a>
                                         {{-- Delete Photo Button --}}
-                                        <button type="button" wire:click="deleteAttachment({{ $img->id }})" wire:confirm="¿Estás seguro de que deseas eliminar esta imagen?" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all transform scale-0 group-hover:scale-100 duration-200 z-10">
+                                        <button type="button" wire:click="deleteAttachment('{{ $img->id }}')" wire:confirm="¿Estás seguro de que deseas eliminar esta imagen?" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-8 h-8 flex items-center justify-center shadow-lg transition-all transform scale-0 group-hover:scale-100 duration-200 z-10">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                         </button>
                                     </div>
@@ -156,7 +156,7 @@
                                             </p>
                                             
                                             {{-- Delete Audio Button --}}
-                                            <button type="button" wire:click="deleteAttachment({{ $audio->id }})" wire:confirm="¿Estás seguro de que deseas eliminar este archivo de audio?" class="text-red-500 hover:text-red-700 transition-colors font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 duration-200">
+                                            <button type="button" wire:click="deleteAttachment('{{ $audio->id }}')" wire:confirm="¿Estás seguro de que deseas eliminar este archivo de audio?" class="text-red-500 hover:text-red-700 transition-colors font-bold text-xs flex items-center gap-1 opacity-0 group-hover:opacity-100 duration-200">
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                                                 Eliminar
                                             </button>
