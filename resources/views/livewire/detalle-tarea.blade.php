@@ -43,12 +43,15 @@
             <div class="flex gap-2">
                 @if($isAdmin || $task->requested_by_id === auth()->id())
                     @if($isEditing)
-                        <button wire:click="saveEdit" class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-bold bg-white/20 hover:bg-white/30 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <button wire:click="saveEdit" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-bold transition-all active:scale-[0.98]" style="background:#16a34a;color:#fff;box-shadow:0 4px 14px rgba(22,163,74,.35);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                             Guardar
                         </button>
+                        <button wire:click="cancelEditing" class="inline-flex items-center px-4 py-2 rounded-xl text-sm font-bold transition-all" style="background:rgba(255,255,255,0.2);color:#fff;">
+                            Cancelar
+                        </button>
                     @else
-                        <button wire:click="$set('isEditing', true)" class="p-2 rounded-lg hover:bg-white/20 transition-colors">
+                        <button wire:click="startEditing" class="p-2.5 rounded-xl hover:bg-white/20 transition-all" title="Editar Tarea">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                         </button>
                     @endif
@@ -66,11 +69,27 @@
                     <div class="space-y-4">
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Título</label>
-                            <input type="text" wire:model="editTitle" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 mt-1">
+                            <input type="text" wire:model="editTitle" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 mt-1 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            @error('editTitle') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Descripción</label>
-                            <textarea wire:model="editDescription" rows="5" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg p-3 mt-1"></textarea>
+                            <textarea wire:model="editDescription" rows="5" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg p-3 mt-1 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20"></textarea>
+                            @error('editDescription') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Fecha Límite (Vencimiento)</label>
+                            <input type="date" wire:model="editDueDate" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 mt-1 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                            @error('editDueDate') <span class="text-xs text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                        
+                        <div class="flex gap-3 pt-4 border-t border-slate-100 justify-end">
+                            <button type="button" wire:click="cancelEditing" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]" style="background:#f1f5f9;color:#475569;">
+                                Cancelar
+                            </button>
+                            <button type="button" wire:click="saveEdit" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98]" style="background:linear-gradient(135deg,#3b82f6,#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(79,70,229,.25);">
+                                💾 Guardar Cambios
+                            </button>
                         </div>
                     </div>
                 @else
@@ -368,35 +387,86 @@
                 <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-lg p-6 space-y-4">
                     <h3 class="font-bold text-slate-800 text-lg border-b pb-2">Acciones</h3>
                     
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
-                        <select wire:change="updateStatus($event.target.value)" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3">
-                            <option value="pendiente" {{ $task->status === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
-                            <option value="en_proceso" {{ $task->status === 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
-                            <option value="completada" {{ $task->status === 'completada' ? 'selected' : '' }}>Completada</option>
-                            <option value="cancelada" {{ $task->status === 'cancelada' ? 'selected' : '' }}>Cancelada</option>
-                        </select>
-                    </div>
+                    @if($isEditing)
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
+                            <select wire:model="editStatus" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <option value="pendiente">Pendiente</option>
+                                <option value="en_proceso">En Proceso</option>
+                                <option value="completada">Completada</option>
+                                <option value="cancelada">Cancelada</option>
+                            </select>
+                        </div>
 
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Prioridad</label>
-                        <select wire:change="updatePriority($event.target.value)" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3">
-                            <option value="baja" {{ $task->priority === 'baja' ? 'selected' : '' }}>Baja</option>
-                            <option value="media" {{ $task->priority === 'media' ? 'selected' : '' }}>Media</option>
-                            <option value="alta" {{ $task->priority === 'alta' ? 'selected' : '' }}>Alta</option>
-                            <option value="urgente" {{ $task->priority === 'urgente' ? 'selected' : '' }}>Urgente</option>
-                        </select>
-                    </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Prioridad</label>
+                            <select wire:model="editPriority" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <option value="baja">Baja</option>
+                                <option value="media">Media</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
 
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase">Asignar a</label>
-                        <select wire:change="assignTo($event.target.value)" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3">
-                            <option value="">Sin asignar</option>
-                            @foreach($employees as $emp)
-                                <option value="{{ $emp->id }}" {{ $task->assigned_to_id === $emp->id ? 'selected' : '' }}>{{ $emp->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Asignar a</label>
+                            <select wire:model="editAssignedToId" class="w-full bg-slate-50 border-2 border-slate-100 rounded-lg h-10 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                <option value="">Sin asignar</option>
+                                @foreach($employees as $emp)
+                                    <option value="{{ $emp->id }}">{{ $emp->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="pt-3 flex gap-2">
+                            <button type="button" wire:click="saveEdit" class="flex-1 py-2.5 font-bold text-xs rounded-xl active:scale-[0.98] transition-all text-center" style="background:#16a34a;color:#fff;box-shadow:0 4px 12px rgba(22,163,74,.3);">
+                                💾 Guardar
+                            </button>
+                            <button type="button" wire:click="cancelEditing" class="flex-1 py-2.5 font-bold text-xs rounded-xl active:scale-[0.98] transition-all text-center" style="background:#f1f5f9;color:#64748b;">
+                                Cancelar
+                            </button>
+                        </div>
+                    @else
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
+                            <div class="flex mt-1">
+                                <span class="px-3 py-1.5 rounded-xl text-xs font-bold {{ $getStatusColor($task->status) }}">
+                                    {{ ucfirst(str_replace('_', ' ', $task->status)) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Prioridad</label>
+                            <div class="flex mt-1">
+                                {!! $getPriorityBadge($task->priority) !!}
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-bold text-slate-400 uppercase">Asignado a</label>
+                            @if($task->assignedTo)
+                                <div class="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-100 rounded-xl mt-1">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0" style="background-color: {{ $task->assignedTo->color ?? '#6366f1' }}">
+                                        {{ substr($task->assignedTo->name, 0, 1) }}
+                                    </div>
+                                    <span class="text-sm font-bold text-slate-700">{{ $task->assignedTo->name }}</span>
+                                </div>
+                            @else
+                                <div class="flex items-center gap-2 p-3 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-slate-400 mt-1 italic text-xs">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    Sin asignar
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="button" wire:click="startEditing" class="w-full flex items-center justify-center gap-2 bg-[#3b49ff] hover:bg-[#3240e6] transition-all text-white font-bold py-2.5 rounded-xl shadow-md shadow-blue-500/10 active:scale-[0.98]">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                Editar o Asignar
+                            </button>
+                        </div>
+                    @endif
 
                     <div class="pt-4 border-t border-slate-100">
                         <button wire:click="deleteTask" wire:confirm="¿Estás seguro de que deseas eliminar esta tarea permanentemente?" class="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-500 hover:text-white transition-all text-red-600 font-bold py-2.5 rounded-xl border border-red-200">

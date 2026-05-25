@@ -19,6 +19,9 @@ class DetalleTarea extends Component
     public $editTitle;
     public $editDescription;
     public $editDueDate;
+    public $editStatus;
+    public $editPriority;
+    public $editAssignedToId;
 
     public $newPhotos = [];
     public $newAudio = null;
@@ -32,6 +35,26 @@ class DetalleTarea extends Component
         $this->editTitle = $task->title;
         $this->editDescription = $task->description;
         $this->editDueDate = $task->due_date ? $task->due_date->format('Y-m-d') : '';
+        $this->editStatus = $task->status;
+        $this->editPriority = $task->priority;
+        $this->editAssignedToId = $task->assigned_to_id;
+    }
+
+    public function startEditing()
+    {
+        $task = Task::findOrFail($this->taskId);
+        $this->editTitle = $task->title;
+        $this->editDescription = $task->description;
+        $this->editDueDate = $task->due_date ? $task->due_date->format('Y-m-d') : '';
+        $this->editStatus = $task->status;
+        $this->editPriority = $task->priority;
+        $this->editAssignedToId = $task->assigned_to_id;
+        $this->isEditing = true;
+    }
+
+    public function cancelEditing()
+    {
+        $this->isEditing = false;
     }
 
     public function addComment()
@@ -50,31 +73,29 @@ class DetalleTarea extends Component
 
     public function saveEdit()
     {
+        $this->validate([
+            'editTitle' => 'required|min:5',
+            'editDescription' => 'required|min:10',
+            'editDueDate' => 'nullable|date',
+        ]);
+
         $task = Task::findOrFail($this->taskId);
-        $task->update([
+        
+        $updateData = [
             'title' => $this->editTitle,
             'description' => $this->editDescription,
             'due_date' => $this->editDueDate ?: null,
-        ]);
+        ];
+
+        if (auth()->user()->role === 'admin') {
+            $updateData['status'] = $this->editStatus;
+            $updateData['priority'] = $this->editPriority;
+            $updateData['assigned_to_id'] = $this->editAssignedToId ?: null;
+        }
+
+        $task->update($updateData);
         $this->isEditing = false;
-    }
-
-    public function updateStatus($status)
-    {
-        $task = Task::findOrFail($this->taskId);
-        $task->update(['status' => $status]);
-    }
-
-    public function updatePriority($priority)
-    {
-        $task = Task::findOrFail($this->taskId);
-        $task->update(['priority' => $priority]);
-    }
-
-    public function assignTo($employeeId)
-    {
-        $task = Task::findOrFail($this->taskId);
-        $task->update(['assigned_to_id' => $employeeId ?: null]);
+        session()->flash('success_message', 'Tarea guardada con éxito.');
     }
 
     public function deleteTask()

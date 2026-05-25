@@ -38,6 +38,29 @@ class Task extends Model
                 $model->{$model->getKeyName()} = (string) Str::uuid();
             }
         });
+
+        static::updating(function ($task) {
+            if ($task->isDirty('status')) {
+                if ($task->status === 'completada' && is_null($task->completed_at)) {
+                    $task->completed_at = now();
+                } elseif ($task->status !== 'completada') {
+                    $task->completed_at = null;
+                }
+            }
+        });
+
+        static::updated(function ($task) {
+            if ($task->wasChanged('assigned_to_id') && $task->assigned_to_id) {
+                try {
+                    $employee = $task->assignedTo;
+                    if ($employee && $employee->email) {
+                        \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error al enviar correo de asignacion de tarea: ' . $e->getMessage());
+                }
+            }
+        });
     }
 
     public function requestedBy()
