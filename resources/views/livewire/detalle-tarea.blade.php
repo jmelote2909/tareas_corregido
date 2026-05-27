@@ -97,34 +97,42 @@
                 @endif
             </div>
 
-            {{-- Comments --}}
+            {{-- Comments & History --}}
             <div class="bg-white rounded-2xl border-2 border-slate-100 shadow-lg overflow-hidden">
                 <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-4 border-b-2 border-slate-100 flex items-center gap-2">
                     <div class="p-2 bg-cyan-100 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-600"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-cyan-600"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
                     </div>
-                    <h3 class="font-bold text-slate-800">Comentarios</h3>
+                    <h3 class="font-bold text-slate-800">Historial y Comentarios</h3>
                     <span class="bg-cyan-100 text-cyan-700 text-xs font-bold px-2 py-0.5 rounded-full">{{ $task->comments->count() }}</span>
                 </div>
                 <div class="p-6 space-y-4">
                     @forelse($task->comments as $comment)
-                        <div class="flex gap-4">
-                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                                {{ substr($comment->user_name, 0, 1) }}
-                            </div>
-                            <div class="flex-1 bg-slate-50 rounded-2xl p-4">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="font-bold text-sm text-slate-800">{{ $comment->user_name }}</span>
-                                    <span class="text-[10px] text-slate-400">{{ $comment->created_at->diffForHumans() }}</span>
+                        @if($comment->type === 'system')
+                            <div class="flex items-center justify-center my-3">
+                                <div class="bg-indigo-50 text-indigo-700 text-[10px] font-bold px-4 py-2 rounded-full border border-indigo-100/50 shadow-sm">
+                                    {{ $comment->text }} - <span class="opacity-70">{{ $comment->created_at->format('d/m/Y H:i') }}</span>
                                 </div>
-                                <p class="text-sm text-slate-600">{{ $comment->text }}</p>
                             </div>
-                        </div>
+                        @else
+                            <div class="flex gap-4">
+                                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0 shadow-sm">
+                                    {{ substr($comment->user_name, 0, 1) }}
+                                </div>
+                                <div class="flex-1 bg-slate-50 rounded-2xl p-4 border border-slate-100/50">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="font-bold text-sm text-slate-800">{{ $comment->user_name }}</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">{{ $comment->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="text-sm text-slate-600">{{ $comment->text }}</p>
+                                </div>
+                            </div>
+                        @endif
                     @empty
-                        <p class="text-center text-slate-400 italic py-4">No hay comentarios todavía</p>
+                        <p class="text-center text-slate-400 italic py-4">Aún no hay actividad ni comentarios en esta tarea</p>
                     @endforelse
 
-                    <div class="pt-4 border-t border-slate-100 flex gap-3">
+                    <div class="pt-4 border-t border-slate-100 flex gap-3 mt-4">
                         <textarea wire:model="newComment" placeholder="Escribe un comentario..." rows="2" class="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl p-3 text-sm focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all"></textarea>
                         <button wire:click="addComment" class="px-6 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all">
                             Enviar

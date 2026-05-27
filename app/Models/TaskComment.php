@@ -19,6 +19,7 @@ class TaskComment extends Model
         'user_name',
         'user_avatar',
         'text',
+        'type',
     ];
 
     protected static function boot()

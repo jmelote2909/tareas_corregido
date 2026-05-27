@@ -82,6 +82,7 @@ class Dashboard extends Component
                    ];
 
               $allTasks = (clone $baseQuery)
+               ->orderByRaw("CASE WHEN status = 'completada' THEN 1 ELSE 0 END")
                ->orderBy('created_at', 'desc')
                ->limit(50)
                ->get();

@@ -66,6 +66,7 @@ class DetalleTarea extends Component
             'user_id' => auth()->id(),
             'user_name' => auth()->user()->name,
             'text' => $this->newComment,
+            'type' => 'comment',
         ]);
 
         $this->newComment = '';
@@ -81,6 +82,14 @@ class DetalleTarea extends Component
 
         $task = Task::findOrFail($this->taskId);
         
+        $changes = [];
+        if ($task->title !== $this->editTitle) $changes[] = "El título cambió.";
+        if ($task->description !== $this->editDescription) $changes[] = "La descripción cambió.";
+        
+        $oldDate = $task->due_date ? $task->due_date->format('Y-m-d') : '';
+        $newDate = $this->editDueDate ?: '';
+        if ($oldDate !== $newDate) $changes[] = "La fecha límite cambió de '" . ($oldDate ?: 'N/A') . "' a '" . ($newDate ?: 'N/A') . "'.";
+        
         $updateData = [
             'title' => $this->editTitle,
             'description' => $this->editDescription,
@@ -88,12 +97,32 @@ class DetalleTarea extends Component
         ];
 
         if (auth()->user()->role === 'admin') {
+            if ($task->status !== $this->editStatus) $changes[] = "El estado cambió de '{$task->status}' a '{$this->editStatus}'.";
+            if ($task->priority !== $this->editPriority) $changes[] = "La prioridad cambió de '{$task->priority}' a '{$this->editPriority}'.";
+            if ($task->assigned_to_id != $this->editAssignedToId) {
+                $oldName = $task->assignedTo ? $task->assignedTo->name : 'Nadie';
+                $newEmp = \App\Models\Employee::find($this->editAssignedToId);
+                $newName = $newEmp ? $newEmp->name : 'Nadie';
+                $changes[] = "La asignación cambió de '{$oldName}' a '{$newName}'.";
+            }
+
             $updateData['status'] = $this->editStatus;
             $updateData['priority'] = $this->editPriority;
             $updateData['assigned_to_id'] = $this->editAssignedToId ?: null;
         }
 
         $task->update($updateData);
+
+        foreach ($changes as $changeText) {
+            TaskComment::create([
+                'task_id' => $this->taskId,
+                'user_id' => auth()->id(),
+                'user_name' => auth()->user()->name,
+                'text' => $changeText,
+                'type' => 'system',
+            ]);
+        }
+
         $this->isEditing = false;
         session()->flash('success_message', 'Tarea guardada con éxito.');
     }

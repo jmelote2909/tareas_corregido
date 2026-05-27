@@ -37,6 +37,10 @@ Route::get('proyectos', \App\Livewire\Proyectos::class)
     ->middleware(['auth', 'verified'])
     ->name('proyectos');
 
+Route::get('proyecto/{id}', \App\Livewire\DetalleProyecto::class)
+    ->middleware(['auth', 'verified'])
+    ->name('detalle-proyecto');
+
 Route::get('informes', \App\Livewire\Informes::class)
     ->middleware(['auth', 'verified'])
     ->name('informes');
