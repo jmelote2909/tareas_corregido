@@ -51,11 +51,14 @@ class MisTareas extends Component
                         ->orderBy('priority', 'asc')
                         ->get();
         } elseif ($selectedEmployee) {
-            $tasks = Task::with(['requestedBy'])
-                        ->where('assigned_to_id', $this->selectedEmployeeId)
-                        ->orWhere('requested_by_id', auth()->id())
-                        ->orderBy('priority', 'asc')
-                        ->get();
+            $query = Task::with(['requestedBy'])
+                        ->where('assigned_to_id', $this->selectedEmployeeId);
+            
+            if (auth()->user()->role !== 'admin') {
+                $query->orWhere('requested_by_id', auth()->id());
+            }
+            
+            $tasks = $query->orderBy('priority', 'asc')->get();
         }
 
         $pendingTasks = collect($tasks)->where('status', 'pendiente');
