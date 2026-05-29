@@ -24,6 +24,7 @@ class Usuarios extends Component
     public $department = '';
     public $team_id = null;
     public $role = 'employee';
+    public $emailPassword = '';
 
     // New team logic
     public $newTeamName = '';
@@ -52,6 +53,7 @@ class Usuarios extends Component
         $this->department = '';
         $this->team_id = null;
         $this->role = 'employee';
+        $this->emailPassword = '';
         $this->editingUser = null;
         $this->newTeamName = '';
         $this->showNewTeamInput = false;
@@ -67,6 +69,7 @@ class Usuarios extends Component
         $this->department = $user->department;
         $this->team_id = $user->team_id;
         $this->role = $user->role;
+        $this->emailPassword = $user->email_password;
         $this->editMode = true;
         $this->showModal = true;
     }
@@ -117,6 +120,7 @@ class Usuarios extends Component
             'email' => 'required|email|unique:users,email' . ($this->editMode ? ',' . $this->editingUser->id : ''),
             'team_id' => 'required',
             'role' => 'required',
+            'emailPassword' => 'nullable|min:6',
         ];
 
         $this->validate($rules);
@@ -130,6 +134,7 @@ class Usuarios extends Component
                 'department' => $team ? $team->name : $this->department,
                 'team_id' => $this->team_id,
                 'role' => $this->role,
+                'email_password' => $this->emailPassword ?: null,
             ];
             if ($this->password) {
                 $data['password'] = $this->password;
@@ -146,6 +151,7 @@ class Usuarios extends Component
                 'department' => $team ? $team->name : $this->department,
                 'team_id' => $this->team_id,
                 'role' => $this->role,
+                'email_password' => $this->emailPassword ?: null,
             ]);
         }
 

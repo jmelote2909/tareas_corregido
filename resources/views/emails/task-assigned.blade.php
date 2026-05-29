@@ -182,10 +182,10 @@
                 <div class="task-card">
                     <h2 class="task-title">{{ $task->title }}</h2>
                     
-                    <div class="meta-list">
-                        <div class="meta-item">
-                            <span class="meta-label">Prioridad</span>
-                            <span class="meta-value">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr style="border-bottom: 1px dashed #e2e8f0;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #64748b; font-weight: 500; text-align: left; border-top: none;">Prioridad</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #1a2344; font-weight: 600; text-align: right; border-top: none;">
                                 @if(strtolower($task->priority) == 'alta' || strtolower($task->priority) == 'high')
                                     <span class="priority-badge priority-alta">{{ $task->priority }}</span>
                                 @elseif(strtolower($task->priority) == 'media' || strtolower($task->priority) == 'medium')
@@ -193,24 +193,24 @@
                                 @else
                                     <span class="priority-badge priority-baja">{{ $task->priority }}</span>
                                 @endif
-                            </span>
-                        </div>
+                            </td>
+                        </tr>
                         
-                        <div class="meta-item">
-                            <span class="meta-label">Fecha Límite</span>
-                            <span class="meta-value">
+                        <tr style="border-bottom: 1px dashed #e2e8f0;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #64748b; font-weight: 500; text-align: left;">Fecha Límite</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #1a2344; font-weight: 600; text-align: right;">
                                 {{ $task->due_date ? $task->due_date->format('d/m/Y') : 'Sin fecha límite' }}
                                 @if($task->due_time)
                                     a las {{ \Carbon\Carbon::parse($task->due_time)->format('H:i') }}
                                 @endif
-                            </span>
-                        </div>
+                            </td>
+                        </tr>
 
-                        <div class="meta-item">
-                            <span class="meta-label">Solicitado por</span>
-                            <span class="meta-value">{{ $task->requestedBy?->name ?? $task->requester_name ?? 'Sistema' }}</span>
-                        </div>
-                    </div>
+                        <tr>
+                            <td style="padding: 10px 0; font-size: 14px; color: #64748b; font-weight: 500; text-align: left;">Solicitado por</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #1a2344; font-weight: 600; text-align: right;">{{ $task->requestedBy?->name ?? $task->requester_name ?? 'Sistema' }}</td>
+                        </tr>
+                    </table>
 
                     <div class="desc-label">Descripción de la tarea</div>
                     <div class="task-desc">

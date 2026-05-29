@@ -184,6 +184,20 @@
                     </div>
 
                     <div>
+                        <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Contraseña de correo</label>
+                        <input type="password" wire:model="emailPassword" placeholder="Contraseña de aplicación de 16 letras" class="w-full h-12 bg-slate-50 border-2 border-slate-50 rounded-2xl px-4 outline-none focus:border-blue-500 focus:bg-white transition-all text-[#1a2344] font-bold">
+                        @error('emailPassword') <span class="text-[10px] text-red-500 font-bold mt-1 block">{{ $message }}</span> @enderror
+                        
+                        <div class="mt-2 p-3 bg-slate-50 border border-slate-200 rounded-2xl text-[10px] text-slate-500 font-medium leading-relaxed">
+                            <span class="font-bold text-indigo-600">Manual de configuración:</span><br>
+                            1.- Entra en "Gestionar tu cuenta de Google".<br>
+                            2.- En el buscador busca "Contraseñas de aplicación".<br>
+                            3.- Crea una nueva específica para esta App.<br>
+                            4.- Pega la contraseña de 16 letras (sin espacios) en el campo Contraseña.
+                        </div>
+                    </div>
+
+                    <div>
                         <label class="text-xs font-black text-[#1a2344] uppercase tracking-widest mb-2 block">Departamento / Equipo</label>
                         <div class="flex gap-2">
                             <div class="relative flex-1 group">
