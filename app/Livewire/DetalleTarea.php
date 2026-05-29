@@ -101,7 +101,7 @@ class DetalleTarea extends Component
             if ($task->priority !== $this->editPriority) $changes[] = "La prioridad cambió de '{$task->priority}' a '{$this->editPriority}'.";
             if ($task->assigned_to_id != $this->editAssignedToId) {
                 $oldName = $task->assignedTo ? $task->assignedTo->name : 'Nadie';
-                $newEmp = \App\Models\Employee::find($this->editAssignedToId);
+                $newEmp = $this->editAssignedToId ? \App\Models\Employee::find($this->editAssignedToId) : null;
                 $newName = $newEmp ? $newEmp->name : 'Nadie';
                 $changes[] = "La asignación cambió de '{$oldName}' a '{$newName}'.";
             }

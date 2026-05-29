@@ -39,6 +39,14 @@ class Task extends Model
             }
         });
 
+        static::saving(function ($task) {
+            foreach (['assigned_to_id', 'requested_by_id', 'project_id', 'category_id'] as $field) {
+                if ($task->{$field} === '') {
+                    $task->{$field} = null;
+                }
+            }
+        });
+
         static::updating(function ($task) {
             if ($task->isDirty('status')) {
                 if ($task->status === 'completada' && is_null($task->completed_at)) {
