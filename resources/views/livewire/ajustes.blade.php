@@ -52,26 +52,6 @@
                         </div>
                     </div>
 
-                    <!-- Recipient Email Field -->
-                    <div class="space-y-2">
-                        <label for="mailReceiver" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Correo de Notificaciones (Destinatario)</label>
-                        <div class="relative">
-                            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 8.67 2.67 8 3.5 8h17c.83 0 1.5.67 1.5 1.5Z"/><path d="m22 8-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 8"/></svg>
-                            </div>
-                            <input 
-                                type="email" 
-                                wire:model="mailReceiver" 
-                                id="mailReceiver" 
-                                placeholder="ejemplo@gmail.com"
-                                class="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-950 border @error('mailReceiver') border-red-500 @else border-slate-200 dark:border-slate-800 @enderror rounded-2xl text-slate-800 dark:text-slate-100 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none"
-                            />
-                        </div>
-                        @error('mailReceiver')
-                            <span class="text-xs text-red-500 font-medium block ml-1">{{ $message }}</span>
-                        @enderror
-                    </div>
-
                     @if ($mailMailer === 'smtp')
                         <!-- SMTP Fields -->
                         <div class="space-y-4 animate-fadeIn">

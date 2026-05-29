@@ -183,31 +183,31 @@
                 <div class="task-card">
                     <h2 class="task-title">{{ $task->title }}</h2>
                     
-                    <div class="meta-list">
-                        <div class="meta-item">
-                            <span class="meta-label">Hecha por (Asignado)</span>
-                            <span class="meta-value">{{ $task->assignedTo?->name ?? 'Sin asignar' }}</span>
-                        </div>
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                        <tr style="border-bottom: 1px dashed #c6f6d5;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #047857; font-weight: 500; text-align: left; border-top: none;">Hecha por (Asignado)</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #064e3b; font-weight: 600; text-align: right; border-top: none;">{{ $task->assignedTo?->name ?? 'Sin asignar' }}</td>
+                        </tr>
 
-                        <div class="meta-item">
-                            <span class="meta-label">Solicitada por</span>
-                            <span class="meta-value">{{ $task->requestedBy?->name ?? $task->requester_name ?? 'Sistema' }}</span>
-                        </div>
+                        <tr style="border-bottom: 1px dashed #c6f6d5;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #047857; font-weight: 500; text-align: left;">Solicitada por</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #064e3b; font-weight: 600; text-align: right;">{{ $task->requestedBy?->name ?? $task->requester_name ?? 'Sistema' }}</td>
+                        </tr>
 
-                        <div class="meta-item">
-                            <span class="meta-label">Fecha y Hora de Finalización</span>
-                            <span class="meta-value">
+                        <tr style="border-bottom: 1px dashed #c6f6d5;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #047857; font-weight: 500; text-align: left;">Fecha y Hora de Finalización</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #064e3b; font-weight: 600; text-align: right;">
                                 @if($task->completed_at)
                                     {{ $task->completed_at->timezone('Europe/Madrid')->format('d/m/Y H:i') }}
                                 @else
                                     {{ now()->timezone('Europe/Madrid')->format('d/m/Y H:i') }}
                                 @endif
-                            </span>
-                        </div>
+                            </td>
+                        </tr>
 
-                        <div class="meta-item">
-                            <span class="meta-label">Prioridad</span>
-                            <span class="meta-value">
+                        <tr style="border-bottom: 1px dashed #c6f6d5;">
+                            <td style="padding: 10px 0; font-size: 14px; color: #047857; font-weight: 500; text-align: left;">Prioridad</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #064e3b; font-weight: 600; text-align: right;">
                                 @if(strtolower($task->priority) == 'alta' || strtolower($task->priority) == 'high')
                                     <span class="priority-badge priority-alta">{{ $task->priority }}</span>
                                 @elseif(strtolower($task->priority) == 'media' || strtolower($task->priority) == 'medium')
@@ -215,19 +215,19 @@
                                 @else
                                     <span class="priority-badge priority-baja">{{ $task->priority }}</span>
                                 @endif
-                            </span>
-                        </div>
+                            </td>
+                        </tr>
                         
-                        <div class="meta-item">
-                            <span class="meta-label">Fecha Límite original</span>
-                            <span class="meta-value">
+                        <tr>
+                            <td style="padding: 10px 0; font-size: 14px; color: #047857; font-weight: 500; text-align: left;">Fecha Límite original</td>
+                            <td style="padding: 10px 0; font-size: 14px; color: #064e3b; font-weight: 600; text-align: right;">
                                 {{ $task->due_date ? $task->due_date->format('d/m/Y') : 'Sin fecha límite' }}
                                 @if($task->due_time)
                                     a las {{ \Carbon\Carbon::parse($task->due_time)->format('H:i') }}
                                 @endif
-                            </span>
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                    </table>
 
                     <div class="desc-label">Descripción de la tarea</div>
                     <div class="task-desc">
