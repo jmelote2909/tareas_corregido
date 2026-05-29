@@ -63,7 +63,8 @@ class Task extends Model
 
             if ($task->wasChanged('status') && $task->status === 'completada') {
                 try {
-                    \Illuminate\Support\Facades\Mail::to('jemeo29@gmail.com')->send(new \App\Mail\TaskCompletedMail($task));
+                    $receiver = \App\Models\Setting::get('mail_receiver', 'infraestructura@cimacableados.com');
+                    \Illuminate\Support\Facades\Mail::to($receiver)->send(new \App\Mail\TaskCompletedMail($task));
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Error al enviar correo de tarea completada: ' . $e->getMessage());
                 }

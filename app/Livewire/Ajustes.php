@@ -10,6 +10,7 @@ class Ajustes extends Component
     public $mailMailer = 'smtp';
     public $mailUsername = '';
     public $mailPassword = '';
+    public $mailReceiver = '';
     public $successMessage = '';
 
     public function mount()
@@ -22,6 +23,7 @@ class Ajustes extends Component
         $this->mailMailer = Setting::get('mail_mailer', 'smtp');
         $this->mailUsername = Setting::get('mail_username', '');
         $this->mailPassword = Setting::get('mail_password', '');
+        $this->mailReceiver = Setting::get('mail_receiver', 'infraestructura@cimacableados.com');
     }
 
     public function save()
@@ -30,16 +32,20 @@ class Ajustes extends Component
             'mailMailer' => 'required|in:smtp,resend',
             'mailUsername' => 'required_if:mailMailer,smtp|nullable|email',
             'mailPassword' => 'required_if:mailMailer,smtp|nullable|min:6',
+            'mailReceiver' => 'required|email',
         ], [
             'mailUsername.required_if' => 'El correo es obligatorio para configurar SMTP.',
-            'mailUsername.email' => 'Por favor introduce una dirección de correo válida.',
+            'mailUsername.email' => 'Por favor introduce una dirección de correo remitente válida.',
             'mailPassword.required_if' => 'La contraseña de aplicación es obligatoria para SMTP.',
             'mailPassword.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'mailReceiver.required' => 'El correo destinatario es obligatorio.',
+            'mailReceiver.email' => 'Por favor introduce un correo destinatario válido.',
         ]);
 
         Setting::set('mail_mailer', $this->mailMailer);
         Setting::set('mail_username', $this->mailUsername);
         Setting::set('mail_password', $this->mailPassword);
+        Setting::set('mail_receiver', $this->mailReceiver);
 
         // Also update .env file values in config dynamically if needed,
         // but AppServiceProvider does this automatically next request.
