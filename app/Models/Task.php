@@ -52,6 +52,22 @@ class Task extends Model
                 try {
                     $employee = \App\Models\Employee::find($task->assigned_to_id);
                     if ($employee && $employee->email) {
+                        $assignedUser = $employee->user;
+                        if ($assignedUser && $assignedUser->email_password) {
+                            config([
+                                'mail.default' => 'smtp',
+                                'mail.mailers.smtp.host' => 'smtp.gmail.com',
+                                'mail.mailers.smtp.port' => 587,
+                                'mail.mailers.smtp.encryption' => 'tls',
+                                'mail.mailers.smtp.username' => $assignedUser->email,
+                                'mail.mailers.smtp.password' => $assignedUser->email_password,
+                                'mail.from.address' => $assignedUser->email,
+                                'mail.from.name' => $assignedUser->name,
+                            ]);
+                            \Illuminate\Support\Facades\Mail::purge('smtp');
+                            \Illuminate\Support\Facades\Mail::purge();
+                        }
+                        
                         \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
                     }
                 } catch (\Exception $e) {
@@ -75,6 +91,22 @@ class Task extends Model
                 try {
                     $employee = \App\Models\Employee::find($task->assigned_to_id);
                     if ($employee && $employee->email) {
+                        $assignedUser = $employee->user;
+                        if ($assignedUser && $assignedUser->email_password) {
+                            config([
+                                'mail.default' => 'smtp',
+                                'mail.mailers.smtp.host' => 'smtp.gmail.com',
+                                'mail.mailers.smtp.port' => 587,
+                                'mail.mailers.smtp.encryption' => 'tls',
+                                'mail.mailers.smtp.username' => $assignedUser->email,
+                                'mail.mailers.smtp.password' => $assignedUser->email_password,
+                                'mail.from.address' => $assignedUser->email,
+                                'mail.from.name' => $assignedUser->name,
+                            ]);
+                            \Illuminate\Support\Facades\Mail::purge('smtp');
+                            \Illuminate\Support\Facades\Mail::purge();
+                        }
+                        
                         \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
                     }
                 } catch (\Exception $e) {
