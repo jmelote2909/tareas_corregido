@@ -52,18 +52,7 @@ class Task extends Model
                 try {
                     $employee = $task->assignedTo;
                     if ($employee && $employee->email) {
-                        if (auth()->check() && auth()->user()->email_password) {
-                            config([
-                                'mail.default' => 'smtp',
-                                'mail.mailers.smtp.host' => 'smtp.gmail.com',
-                                'mail.mailers.smtp.port' => 587,
-                                'mail.mailers.smtp.encryption' => 'tls',
-                                'mail.mailers.smtp.username' => auth()->user()->email,
-                                'mail.mailers.smtp.password' => auth()->user()->email_password,
-                                'mail.from.address' => auth()->user()->email,
-                                'mail.from.name' => auth()->user()->name,
-                            ]);
-                        }
+                        // Using global mail configuration set in AppServiceProvider
                         
                         \Illuminate\Support\Facades\Mail::purge('smtp');
                         \Illuminate\Support\Facades\Mail::purge();
@@ -91,18 +80,7 @@ class Task extends Model
                 try {
                     $employee = $task->assignedTo;
                     if ($employee && $employee->email) {
-                        if (auth()->check() && auth()->user()->email_password) {
-                            config([
-                                'mail.default' => 'smtp',
-                                'mail.mailers.smtp.host' => 'smtp.gmail.com',
-                                'mail.mailers.smtp.port' => 587,
-                                'mail.mailers.smtp.encryption' => 'tls',
-                                'mail.mailers.smtp.username' => auth()->user()->email,
-                                'mail.mailers.smtp.password' => auth()->user()->email_password,
-                                'mail.from.address' => auth()->user()->email,
-                                'mail.from.name' => auth()->user()->name,
-                            ]);
-                        }
+                        // Using global mail configuration set in AppServiceProvider
                         
                         \Illuminate\Support\Facades\Mail::purge('smtp');
                         \Illuminate\Support\Facades\Mail::purge();
