@@ -51,9 +51,8 @@ class Task extends Model
             if ($task->assigned_to_id) {
                 try {
                     $employee = $task->assignedTo;
-                    if ($employee && $employee->email) {
-                        \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
-                    }
+                    $receiver = \App\Models\Setting::get('mail_receiver', 'infraestructura@cimacableados.com');
+                    \Illuminate\Support\Facades\Mail::to($receiver)->send(new \App\Mail\TaskAssignedMail($task));
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Error al enviar correo de asignacion de tarea en creacion: ' . $e->getMessage());
                 }
@@ -74,9 +73,8 @@ class Task extends Model
             if ($task->wasChanged('assigned_to_id') && $task->assigned_to_id) {
                 try {
                     $employee = $task->assignedTo;
-                    if ($employee && $employee->email) {
-                        \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
-                    }
+                    $receiver = \App\Models\Setting::get('mail_receiver', 'infraestructura@cimacableados.com');
+                    \Illuminate\Support\Facades\Mail::to($receiver)->send(new \App\Mail\TaskAssignedMail($task));
                 } catch (\Exception $e) {
                     \Illuminate\Support\Facades\Log::error('Error al enviar correo de asignacion de tarea: ' . $e->getMessage());
                 }
