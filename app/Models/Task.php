@@ -50,7 +50,7 @@ class Task extends Model
         static::created(function ($task) {
             if ($task->assigned_to_id) {
                 try {
-                    $employee = $task->assignedTo;
+                    $employee = \App\Models\Employee::find($task->assigned_to_id);
                     if ($employee && $employee->email) {
                         if (auth()->check() && auth()->user()->email_password) {
                             config([
@@ -89,7 +89,7 @@ class Task extends Model
         static::updated(function ($task) {
             if ($task->wasChanged('assigned_to_id') && $task->assigned_to_id) {
                 try {
-                    $employee = $task->assignedTo;
+                    $employee = \App\Models\Employee::find($task->assigned_to_id);
                     if ($employee && $employee->email) {
                         if (auth()->check() && auth()->user()->email_password) {
                             config([
