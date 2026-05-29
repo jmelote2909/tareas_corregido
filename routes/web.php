@@ -33,6 +33,10 @@ Route::get('usuarios', \App\Livewire\Usuarios::class)
     ->middleware(['auth', 'verified'])
     ->name('usuarios');
 
+Route::get('ajustes', \App\Livewire\Ajustes::class)
+    ->middleware(['auth', 'verified'])
+    ->name('ajustes');
+
 Route::get('proyectos', \App\Livewire\Proyectos::class)
     ->middleware(['auth', 'verified'])
     ->name('proyectos');

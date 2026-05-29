@@ -19,6 +19,32 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+                $mailMailer = \App\Models\Setting::get('mail_mailer');
+                $mailUsername = \App\Models\Setting::get('mail_username');
+                $mailPassword = \App\Models\Setting::get('mail_password');
+                
+                if ($mailUsername && $mailPassword) {
+                    config([
+                        'mail.mailers.smtp.username' => $mailUsername,
+                        'mail.mailers.smtp.password' => $mailPassword,
+                        'mail.from.address' => $mailUsername,
+                    ]);
+                    
+                    if ($mailMailer) {
+                        config([
+                            'mail.default' => $mailMailer,
+                        ]);
+                    } else {
+                        config([
+                            'mail.default' => 'smtp',
+                        ]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Avoid failing during migrations
+        }
     }
 }
