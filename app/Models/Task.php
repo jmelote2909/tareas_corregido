@@ -47,6 +47,35 @@ class Task extends Model
             }
         });
 
+        static::created(function ($task) {
+            if ($task->assigned_to_id) {
+                try {
+                    $employee = $task->assignedTo;
+                    if ($employee && $employee->email) {
+                        if (auth()->check() && auth()->user()->email_password) {
+                            config([
+                                'mail.default' => 'smtp',
+                                'mail.mailers.smtp.host' => 'smtp.gmail.com',
+                                'mail.mailers.smtp.port' => 587,
+                                'mail.mailers.smtp.encryption' => 'tls',
+                                'mail.mailers.smtp.username' => auth()->user()->email,
+                                'mail.mailers.smtp.password' => auth()->user()->email_password,
+                                'mail.from.address' => auth()->user()->email,
+                                'mail.from.name' => auth()->user()->name,
+                            ]);
+                        }
+                        
+                        \Illuminate\Support\Facades\Mail::purge('smtp');
+                        \Illuminate\Support\Facades\Mail::purge();
+                        
+                        \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Error al enviar correo de asignacion de tarea en creacion: ' . $e->getMessage());
+                }
+            }
+        });
+
         static::updating(function ($task) {
             if ($task->isDirty('status')) {
                 if ($task->status === 'completada' && is_null($task->completed_at)) {
@@ -74,6 +103,10 @@ class Task extends Model
                                 'mail.from.name' => auth()->user()->name,
                             ]);
                         }
+                        
+                        \Illuminate\Support\Facades\Mail::purge('smtp');
+                        \Illuminate\Support\Facades\Mail::purge();
+                        
                         \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
                     }
                 } catch (\Exception $e) {
