@@ -27,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
                 
                 if ($mailUsername && $mailPassword) {
                     config([
+                        'mail.mailers.smtp.host' => 'smtp.gmail.com',
+                        'mail.mailers.smtp.port' => 587,
+                        'mail.mailers.smtp.encryption' => 'tls',
                         'mail.mailers.smtp.username' => $mailUsername,
                         'mail.mailers.smtp.password' => $mailPassword,
                         'mail.from.address' => $mailUsername,
