@@ -43,8 +43,8 @@ class AppServiceProvider extends ServiceProvider
                     }
                 }
             }
-        } catch (\Exception $e) {
-            // Avoid failing during migrations
+        } catch (\Throwable $e) {
+            // Avoid failing during migrations or connection issues
         }
     }
 }
