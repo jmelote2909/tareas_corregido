@@ -52,11 +52,6 @@ class Task extends Model
                 try {
                     $employee = $task->assignedTo;
                     if ($employee && $employee->email) {
-                        // Using global mail configuration set in AppServiceProvider
-                        
-                        \Illuminate\Support\Facades\Mail::purge('smtp');
-                        \Illuminate\Support\Facades\Mail::purge();
-                        
                         \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
                     }
                 } catch (\Exception $e) {
@@ -80,11 +75,6 @@ class Task extends Model
                 try {
                     $employee = $task->assignedTo;
                     if ($employee && $employee->email) {
-                        // Using global mail configuration set in AppServiceProvider
-                        
-                        \Illuminate\Support\Facades\Mail::purge('smtp');
-                        \Illuminate\Support\Facades\Mail::purge();
-                        
                         \Illuminate\Support\Facades\Mail::to($employee->email)->send(new \App\Mail\TaskAssignedMail($task));
                     }
                 } catch (\Exception $e) {
