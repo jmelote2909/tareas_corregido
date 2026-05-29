@@ -83,7 +83,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         @foreach($users as $user)
             @php
-                $initials = collect(explode(' ', $user->name))->map(fn($n) => $n[0])->take(2)->join('');
+                $initials = collect(explode(' ', $user->name ?? ''))->filter()->map(fn($n) => mb_substr($n, 0, 1))->take(2)->join('');
                 $roleColor = match($user->role) {
                     'admin' => 'bg-blue-500',
                     'employee' => 'bg-emerald-500',
